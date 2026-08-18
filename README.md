@@ -1,5 +1,6 @@
 # SlimeSellwands
 SlimeSellwands is a fork of [AxSellwand](https://github.com/Artillex-Studios/AxSellwands) which lets you sell items in storage units.
+I may add support for Fluffy Barrels in the next update.
 
 ## Requirements
 - Spigot (or a fork) 1.20.6 or higher
