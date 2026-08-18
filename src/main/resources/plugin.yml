@@ -1,0 +1,9 @@
+name: SlimeSellwands
+version: '${project.version}'
+main: com.artillexstudios.axsellwands.AxSellwands
+api-version: '1.20.6'
+folia-supported: true
+
+softdepend:
+  - PlaceholderAPI
+  - BetterInfinityExpansion
