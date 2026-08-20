@@ -53,16 +53,17 @@ public class SellwandUseListener implements Listener {
             contents = ((Container) block.getState()).getInventory().getContents();
         } else if (block.getType() == Material.ENDER_CHEST) {
             contents = player.getEnderChest().getContents();
-        } else if (!CONFIG.getBoolean("slimefun-integration")) {
+        } else if (Bukkit.getPluginManager().getPlugin("BetterInfinityExpansion") != null) {
+            if (!CONFIG.getBoolean("slimefun-integration")) return;
             if (!StorageUnitAPI.isUnit(block)) return;
             int amount = StorageUnitAPI.getAmountOfItems(block);
-
-            if (amount > 0){
+            if (amount >= 0){
                 contents = new ItemStack[]{StorageUnitAPI.getContents(block)};
                 StorageUnitAPI.emptyUnit(block);
             } else {
                 contents = new ItemStack[]{};
             }
+
         } else {
             return; // not a container
         }
