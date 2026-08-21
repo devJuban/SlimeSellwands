@@ -1,10 +1,7 @@
 package com.artillexstudios.axsellwands.listeners;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
-import com.artillexstudios.axapi.utils.ActionBar;
-import com.artillexstudios.axapi.utils.ItemBuilder;
-import com.artillexstudios.axapi.utils.StringUtils;
-import com.artillexstudios.axapi.utils.Title;
+import com.artillexstudios.axapi.utils.*;
 import com.artillexstudios.axintegrations.types.CurrencyIntegration;
 import com.artillexstudios.axintegrations.types.ProtectionIntegration;
 import com.artillexstudios.axintegrations.types.ShopIntegration;
@@ -14,13 +11,12 @@ import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.HistoryUtils;
 import com.artillexstudios.axsellwands.utils.HologramUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import io.github.mooy1.infinityexpansion.items.storage.StorageUnit;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import io.github.mooy1.infinityexpansion.items.storage.StorageUnitAPI;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -48,6 +44,7 @@ public class SellwandUseListener implements Listener {
         if (sellwand == null) return;
         Player player = event.getPlayer();
 
+        Location l = null;
         ItemStack[] contents;
         if (block.getState() instanceof Container) {
             contents = ((Container) block.getState()).getInventory().getContents();
@@ -55,14 +52,31 @@ public class SellwandUseListener implements Listener {
             contents = player.getEnderChest().getContents();
         } else if (Bukkit.getPluginManager().getPlugin("BetterInfinityExpansion") != null) {
             if (!CONFIG.getBoolean("slimefun-integration")) return;
-            if (!StorageUnitAPI.isUnit(block)) return;
-            int amount = StorageUnitAPI.getAmountOfItems(block);
-            if (amount >= 0){
-                contents = new ItemStack[]{StorageUnitAPI.getContents(block)};
-                StorageUnitAPI.emptyUnit(block);
+
+
+            if (StorageUnitAPI.isUnit(block)){
+                int amount = StorageUnitAPI.getAmountOfItems(block);
+                if (amount >= 0){
+                    contents = new ItemStack[]{StorageUnitAPI.getContents(block)};
+                } else {
+                    contents = new ItemStack[]{};
+                }
+                l = block.getLocation();
+            } else if (block.getState() instanceof Sign){ // WallSign or Sign
+                AbstractMap.SimpleEntry<StorageUnit, Location> data = StorageUnitAPI.getUnitBySign(block);
+                if (data == null) return;
+                l = StorageUnitAPI.getUnitBySign(block).getValue();
+
+                int amount = StorageUnitAPI.getAmountOfItems(l);
+                if (amount >= 0){
+                    contents = new ItemStack[]{StorageUnitAPI.getContents(l)};
+                } else {
+                    contents = new ItemStack[]{};
+                }
             } else {
-                contents = new ItemStack[]{};
+                return; // not a supported storage unit
             }
+
 
         } else {
             return; // not a container
@@ -131,6 +145,7 @@ public class SellwandUseListener implements Listener {
             Bukkit.getPluginManager().callEvent(apiEvent);
             if (apiEvent.isCancelled()) return;
             newSoldPrice = apiEvent.getMoneyMade();
+            if (l != null) StorageUnitAPI.emptyUnit(l);
 
             StringBuilder str = new StringBuilder("[");
             boolean first = true;
