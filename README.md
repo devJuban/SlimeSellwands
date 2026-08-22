@@ -12,6 +12,7 @@ SlimeSellwands is a fork of [AxSellwand](https://github.com/Artillex-Studios/AxS
 
 # Coming Soon
 - FluffyMachines support
+- InfinityExpansion (original) support
 
 # Credits
 [@Artillex-Studios](https://github.com/Artillex-Studios/) - providing AxSellwand
