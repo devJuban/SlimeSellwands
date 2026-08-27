@@ -6,8 +6,8 @@ and FluffyMachines are currently supported.
 - Spigot (Paper recommended) 1.20.6 or higher
 - [Slimefun](https://github.com/Slimefun/Slimefun4)
   - [BetterInfinityExpansion (Any)](https://github.com/devJuban/BetterInfinityExpansion)
-  - [InfinityExpansion (Latest)]()
-  - [FluffyMachines (Latest)]()
+  - [InfinityExpansion (Latest)](https://github.com/Riley31415/InfinityExpansion)
+  - [FluffyMachines (Latest)](https://github.com/NCBPFluffyBear/FluffyMachines)
 
 > [!NOTE]
 > Despite IE being supported I recommend that you use BIE (V1.2.3 or higher).
