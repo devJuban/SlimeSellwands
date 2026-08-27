@@ -9,7 +9,7 @@ and FluffyMachines are currently supported.
   - [InfinityExpansion (Latest)]()
   - [FluffyMachines (Latest)]()
 
-> [!INFO]
+> [!NOTE]
 > Despite IE being supported I recommend that you use BIE (V1.2.3 or higher).
 
 # Credits
