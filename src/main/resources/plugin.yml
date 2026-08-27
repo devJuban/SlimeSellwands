@@ -7,3 +7,5 @@ folia-supported: true
 softdepend:
   - PlaceholderAPI
   - BetterInfinityExpansion
+  - FluffyMachines
+  - Slimefun

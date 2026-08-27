@@ -3,7 +3,7 @@
 
     <groupId>com.artillexstudios</groupId>
     <artifactId>AxSellwands</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 
     <name>SlimeSellwands</name>
 
@@ -41,7 +41,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
                                     <pattern>com.artillexstudios.axapi</pattern>
@@ -144,11 +143,18 @@
             <version>1.2.3</version>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.github.NCBPFluffyBear</groupId>-->
-<!--            <artifactId>FluffyMachines</artifactId>-->
-<!--            <version>master-01c839cc0d-1</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.github.NCBPFluffyBear</groupId>
+            <artifactId>FluffyMachines</artifactId>
+            <version>master-01c839cc0d-1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Slimefun</groupId>
+            <artifactId>Slimefun4</artifactId>
+            <version>RC-35</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-minimessage</artifactId>

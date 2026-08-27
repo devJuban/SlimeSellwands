@@ -1,18 +1,16 @@
 # SlimeSellwands
-SlimeSellwands is a fork of [AxSellwand](https://github.com/Artillex-Studios/AxSellwands) which lets you sell items in storage units.
+SlimeSellwands is a fork of [AxSellwand](https://github.com/Artillex-Studios/AxSellwands) which lets you sell items in storage units from slimefun. BetterInfinityExpansion, InfinityExpansion
+and FluffyMachines are currently supported.
 
 ## Requirements
-- Spigot (or a fork) 1.20.6 or higher
-- [BetterInfinityExpansion V1.2.3](https://github.com/devJuban/BetterInfinityExpansion)
-    - [Slimefun](https://github.com/Slimefun/Slimefun4)
+- Spigot (Paper recommended) 1.20.6 or higher
+- [Slimefun](https://github.com/Slimefun/Slimefun4)
+  - [BetterInfinityExpansion (Any)](https://github.com/devJuban/BetterInfinityExpansion)
+  - [InfinityExpansion (Latest)]()
+  - [FluffyMachines (Latest)]()
 
-> [!WARNING]
-> InfinityExpansion does **NOT** work with SlimeSellwands.
-> BetterInfinityExpansion has a StorageUnitAPI for SlimeSellwands to access.
-
-# Coming Soon
-- FluffyMachines support
-- InfinityExpansion (original) support
+> [!INFO]
+> Despite IE being supported I recommend that you use BIE (V1.2.3 or higher).
 
 # Credits
 [@Artillex-Studios](https://github.com/Artillex-Studios/) - providing AxSellwand

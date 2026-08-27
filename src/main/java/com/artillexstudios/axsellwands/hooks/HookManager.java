@@ -18,7 +18,6 @@ public class HookManager {
                     return HOOKS.getBoolean("hooks.protection-plugins.%s".formatted(name), true);
                 })
                 .enableShopIntegrations(name -> {
-                    System.out.println(name);
                     return HOOKS.getString("hooks.price-plugin", "").equalsIgnoreCase(name);
                 })
                 .enableCurrencyIntegrations(name -> {

@@ -19,10 +19,11 @@ import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.FileUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
 import com.artillexstudios.axsellwands.utils.UpdateNotifier;
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.util.AbstractMap.SimpleEntry;
 
 public final class AxSellwands extends AxPlugin {
     public static Config CONFIG;
@@ -30,11 +31,16 @@ public final class AxSellwands extends AxPlugin {
     public static Config HOOKS;
     public static MessageUtils MESSAGEUTILS;
     private static AxPlugin instance;
+
 //    private static ThreadedQueue<Runnable> threadedQueue;
 
 //    public static ThreadedQueue<Runnable> getThreadedQueue() {
 //        return threadedQueue;
 //    }
+
+    public static SimpleEntry<Boolean, String> BIE = getPluginInfo(getPlugin("BetterInfinityExpansion"));
+    public static SimpleEntry<Boolean, String> IE = getPluginInfo(getPlugin("InfinityExpansion"));
+    public static SimpleEntry<Boolean, String> FM = getPluginInfo(getPlugin("FluffyMachines"));
 
     public static AxPlugin getInstance() {
         return instance;
@@ -42,8 +48,6 @@ public final class AxSellwands extends AxPlugin {
 
     public void enable() {
         instance = this;
-
-        new Metrics(this, 21332);
 
         CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
         LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
@@ -66,22 +70,34 @@ public final class AxSellwands extends AxPlugin {
         getServer().getPluginManager().registerEvents(new CraftListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
 
-        Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] Loaded plugin!"));
+        sendMessage("&#FF5500Loaded plugin!");
 
         UpdateNotifier.init(CONFIG, LANG);
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
-        if (CONFIG.getBoolean("slimefun-integration", false)) {
-            if (Bukkit.getPluginManager().getPlugin("BetterInfinityExpansion") != null){
-                getLogger().info("BetterInfinityExpansion detected, BIE integration enabled!");
-            } else {
-                getLogger().warning("BetterInfinityExpansion disabled or not installed. SlimeSellwands won't work!");
-            }
+        Boolean slimefun = getPluginInfo(getPlugin("Slimefun")).getKey();
+        if (CONFIG.getBoolean("slimefun-integration", false) && slimefun) {
 
-            if (Bukkit.getPluginManager().getPlugin("InfinityExpansion") != null){
-                getLogger().warning("InfinityExpansion detected, SlimeSellwands does NOT work with IE. Switch to BEI");
-                getLogger().warning("You can find BIE at https://github.com/devJuban/BetterInfinityExpansion");
-            }
+           if (BIE.getKey() && compare(BIE.getValue(), "1.2.3")){
+               sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
+           } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")){
+               sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
+
+               BIE = new SimpleEntry<>(false, BIE.getValue());
+               IE = new SimpleEntry<>(true, IE.getValue());
+           } else if (IE.getKey()) {
+               sendMessage("&aInfinityExpansion detected, integration enabled.");
+           }
+
+           if (FM.getKey()){
+               sendMessage("&aFluffyMachines detected, integration enabled.");
+           } else {
+               sendMessage("&4No supported plugins detected.");
+               sendMessage("&4Supported Plugins:");
+               sendMessage("&4 - BetterInfinityExpansion");
+               sendMessage("&4 - InfinityExpansion");
+               sendMessage("&4 - FluffyMachines");
+           }
         }
     }
 
@@ -95,4 +111,25 @@ public final class AxSellwands extends AxPlugin {
         FeatureFlags.HOLOGRAM_UPDATE_TICKS.set(20L);
         FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.set(1);
     }
+
+    public static Plugin getPlugin(String plugin){
+        return Bukkit.getPluginManager().getPlugin(plugin);
+    }
+
+    public static SimpleEntry<Boolean, String> getPluginInfo(Plugin p){
+        return new SimpleEntry<>(
+                p != null,
+                p == null ? "" : p.getDescription().getVersion()
+        );
+    }
+
+    public static boolean compare(String v1, String v2){
+        return Runtime.Version.parse(v1).compareTo(Runtime.Version.parse(v2)) >= 0;
+    }
+
+    public void sendMessage(String msg){
+        String prefix = "&a[" + this.getName() + "] ";
+        Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString(prefix + msg));
+    }
+
 }
