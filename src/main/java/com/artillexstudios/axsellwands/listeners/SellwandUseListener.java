@@ -158,6 +158,7 @@ public class SellwandUseListener implements Listener {
                 emptyUnit(data.getValue().getBlock());
             } else if (isBarrel(block)){
                 emptyBarrel(block);
+                getBarrel(block).updateHologram(block, null, "&cEmpty");
             }
 
             StringBuilder str = new StringBuilder("[");
@@ -304,8 +305,7 @@ public class SellwandUseListener implements Listener {
         
         for (int slot : OUTPUT_SLOTS){
             ItemStack item = menu.getItemInSlot(slot);
-            //if (item == null || item.getType().isAir()) continue;
-            if (item.getType() != stored.getType()) continue;
+            if (item == null || item.getType().isAir() || item.getType() != stored.getType()) continue;
             amount += item.getAmount();
         }
 
