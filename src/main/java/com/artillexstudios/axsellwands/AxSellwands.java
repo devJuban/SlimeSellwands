@@ -82,6 +82,7 @@ public final class AxSellwands extends AxPlugin {
                sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
            } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")){
                sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
+               sendMessage("You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
 
                BIE = new SimpleEntry<>(false, BIE.getValue());
                IE = new SimpleEntry<>(true, IE.getValue());
@@ -91,13 +92,15 @@ public final class AxSellwands extends AxPlugin {
 
            if (FM.getKey()){
                sendMessage("&aFluffyMachines detected, integration enabled.");
-           } else {
-               sendMessage("&4No supported plugins detected.");
-               sendMessage("&4Supported Plugins:");
-               sendMessage("&4 - BetterInfinityExpansion");
-               sendMessage("&4 - InfinityExpansion");
-               sendMessage("&4 - FluffyMachines");
            }
+
+           if (!BIE.getKey() && !IE.getKey() && FM.getKey()){
+                sendMessage("&4No supported plugins detected.");
+                sendMessage("&4Supported Plugins:");
+                sendMessage("&4 - BetterInfinityExpansion");
+                sendMessage("&4 - InfinityExpansion");
+                sendMessage("&4 - FluffyMachines");
+            }
         }
     }
 
