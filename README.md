@@ -11,7 +11,7 @@ and FluffyMachines are currently supported.
 
 > [!NOTE]
 > Despite IE being supported I recommend that you use BIE (V1.2.3 or higher).
-
+ 
 # Changes
 
 | File Changed            | Changed                          |
