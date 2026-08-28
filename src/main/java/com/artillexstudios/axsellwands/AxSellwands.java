@@ -41,6 +41,7 @@ public final class AxSellwands extends AxPlugin {
     public static SimpleEntry<Boolean, String> BIE = getPluginInfo(getPlugin("BetterInfinityExpansion"));
     public static SimpleEntry<Boolean, String> IE = getPluginInfo(getPlugin("InfinityExpansion"));
     public static SimpleEntry<Boolean, String> FM = getPluginInfo(getPlugin("FluffyMachines"));
+    public static SimpleEntry<Boolean, String> SF = getPluginInfo(getPlugin("Slimefun"));
 
     public static AxPlugin getInstance() {
         return instance;
@@ -75,14 +76,13 @@ public final class AxSellwands extends AxPlugin {
         UpdateNotifier.init(CONFIG, LANG);
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
-        Boolean slimefun = getPluginInfo(getPlugin("Slimefun")).getKey();
-        if (CONFIG.getBoolean("slimefun-integration", false) && slimefun) {
+        if (CONFIG.getBoolean("slimefun-integration", false) && SF.getKey()) {
 
            if (BIE.getKey() && compare(BIE.getValue(), "1.2.3")){
                sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
            } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")){
                sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
-               sendMessage("You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
+               sendMessage("&2You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
 
                BIE = new SimpleEntry<>(false, BIE.getValue());
                IE = new SimpleEntry<>(true, IE.getValue());
@@ -94,7 +94,7 @@ public final class AxSellwands extends AxPlugin {
                sendMessage("&aFluffyMachines detected, integration enabled.");
            }
 
-           if (!BIE.getKey() && !IE.getKey() && FM.getKey()){
+           if (!BIE.getKey() && !IE.getKey() && !FM.getKey()){
                 sendMessage("&4No supported plugins detected.");
                 sendMessage("&4Supported Plugins:");
                 sendMessage("&4 - BetterInfinityExpansion");
