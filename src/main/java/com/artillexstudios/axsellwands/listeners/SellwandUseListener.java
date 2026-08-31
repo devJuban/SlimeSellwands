@@ -2,9 +2,11 @@ package com.artillexstudios.axsellwands.listeners;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
 import com.artillexstudios.axapi.utils.*;
+import com.artillexstudios.axintegrations.types.ContainerIntegration;
 import com.artillexstudios.axintegrations.types.CurrencyIntegration;
 import com.artillexstudios.axintegrations.types.ProtectionIntegration;
 import com.artillexstudios.axintegrations.types.ShopIntegration;
+import com.artillexstudios.axsellwands.AxSellwands;
 import com.artillexstudios.axsellwands.api.events.AxSellwandsSellEvent;
 import com.artillexstudios.axsellwands.sellwands.Sellwand;
 import com.artillexstudios.axsellwands.sellwands.Sellwands;
@@ -19,10 +21,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractMap.SimpleEntry;
@@ -32,6 +36,34 @@ import static com.artillexstudios.axsellwands.AxSellwands.*;
 import static com.artillexstudios.axsellwands.hooks.SlimefunHook.*;
 
 public class SellwandUseListener implements Listener {
+
+    public static void registerEvent() {
+        SellwandUseListener useListener = new SellwandUseListener();
+        String priority = CONFIG.getString("interact-listener-priority", "LOW");
+
+        EventPriority eventPriority;
+        try {
+            eventPriority = EventPriority.valueOf(priority);
+        } catch (IllegalArgumentException ex) {
+            Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Invalid event priority: &#FFAAAA%s".formatted(priority)));
+            eventPriority = EventPriority.LOW;
+        }
+
+        EventExecutor executor = (listener, event) -> {
+            if (listener instanceof SellwandUseListener && event instanceof PlayerInteractEvent useEvent) {
+                useListener.onInteract(useEvent);
+            }
+        };
+
+        AxSellwands.getInstance().getServer().getPluginManager().registerEvent(
+                PlayerInteractEvent.class,
+                useListener,
+                eventPriority,
+                executor,
+                AxSellwands.getInstance(),
+                false
+        );
+    }
 
     @EventHandler(ignoreCancelled = true)
     public void onInteract(@NotNull PlayerInteractEvent event) {
@@ -47,36 +79,41 @@ public class SellwandUseListener implements Listener {
         Player player = event.getPlayer();
 
         ItemStack[] contents;
-        if (block.getState() instanceof Container && !isSlimefunItem(block)) {
-            contents = ((Container) block.getState()).getInventory().getContents();
-        } else if (block.getType() == Material.ENDER_CHEST) {
-            contents = player.getEnderChest().getContents();
-        } else if (CONFIG.getBoolean("slimefun-integration") && getPlugin("Slimefun") != null){
-
-            if (isUnit(block)){
-                SimpleEntry<StorageUnit, Location> data = getUnitBySign(block);
-                if (data == null) return;
-                Block b = data.getValue().getBlock();
-
-                BlockMenu menu = BlockStorage.getInventory(b);
-                if (menu == null) return;
-                if (menu.hasViewer()) {
-                    MESSAGEUTILS.sendLang(player, "block-has-viewer");
-                    return;
-                }
-
-                contents = new ItemStack[]{getContents(b)};
-            } else if (isBarrel(block)) {
-                BlockMenu menu = BlockStorage.getInventory(block);
-                if (menu == null) return;
-                if (menu.hasViewer()) {
-                    MESSAGEUTILS.sendLang(player, "block-has-viewer");
-                    return;
-                }
-                contents = new ItemStack[]{getBarrelContents(block)};
-            } else return;
+        ContainerIntegration integration = ContainerIntegration.getContainerIntegration(block);
+        if (integration != null) {
+            contents = integration.getContents(block).toArray(new ItemStack[0]);
         } else {
-            return; // not a container
+            if (block.getState() instanceof Container && !isSlimefunItem(block)) {
+                contents = ((Container) block.getState()).getInventory().getContents();
+            } else if (block.getType() == Material.ENDER_CHEST) {
+                contents = player.getEnderChest().getContents();
+            } else if (CONFIG.getBoolean("slimefun-integration") && getPlugin("Slimefun") != null){
+
+                if (isUnit(block)){
+                    SimpleEntry<StorageUnit, Location> data = getUnitBySign(block);
+                    if (data == null) return;
+                    Block b = data.getValue().getBlock();
+
+                    BlockMenu menu = BlockStorage.getInventory(b);
+                    if (menu == null) return;
+                    if (menu.hasViewer()) {
+                        MESSAGEUTILS.sendLang(player, "block-has-viewer");
+                        return;
+                    }
+
+                    contents = new ItemStack[]{getContents(b)};
+                } else if (isBarrel(block)) {
+                    BlockMenu menu = BlockStorage.getInventory(block);
+                    if (menu == null) return;
+                    if (menu.hasViewer()) {
+                        MESSAGEUTILS.sendLang(player, "block-has-viewer");
+                        return;
+                    }
+                    contents = new ItemStack[]{getBarrelContents(block)};
+                } else return;
+            } else {
+                return; // not a container
+            }
         }
 
         boolean hasBypass = player.hasPermission("axsellwands.admin");

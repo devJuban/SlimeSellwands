@@ -10,6 +10,7 @@ import com.artillexstudios.axapi.libs.boostedyaml.settings.updater.UpdaterSettin
 import com.artillexstudios.axapi.utils.MessageUtils;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
+import com.artillexstudios.axapi.utils.logging.LoggerNameFormat;
 import com.artillexstudios.axsellwands.commands.CommandManager;
 import com.artillexstudios.axsellwands.hooks.HookManager;
 import com.artillexstudios.axsellwands.listeners.CraftListener;
@@ -67,7 +68,7 @@ public final class AxSellwands extends AxPlugin {
         }
 
         Sellwands.reload();
-        getServer().getPluginManager().registerEvents(new SellwandUseListener(), this);
+        SellwandUseListener.registerEvent();
         getServer().getPluginManager().registerEvents(new CraftListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
 
@@ -101,6 +102,8 @@ public final class AxSellwands extends AxPlugin {
                 sendMessage("&4 - InfinityExpansion");
                 sendMessage("&4 - FluffyMachines");
             }
+        } else {
+            sendMessage("&4Slimefun not found or disabled!");
         }
     }
 
@@ -113,6 +116,7 @@ public final class AxSellwands extends AxPlugin {
         FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.set(true);
         FeatureFlags.HOLOGRAM_UPDATE_TICKS.set(20L);
         FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.set(1);
+        FeatureFlags.LOGGER_NAME_FORMAT.set(LoggerNameFormat.NAMEABLE);
     }
 
     public static Plugin getPlugin(String plugin){
