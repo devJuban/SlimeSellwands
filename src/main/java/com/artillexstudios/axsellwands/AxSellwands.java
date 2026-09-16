@@ -13,6 +13,7 @@ import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
 import com.artillexstudios.axapi.utils.logging.LoggerNameFormat;
 import com.artillexstudios.axsellwands.commands.CommandManager;
 import com.artillexstudios.axsellwands.hooks.HookManager;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager;
 import com.artillexstudios.axsellwands.listeners.CraftListener;
 import com.artillexstudios.axsellwands.listeners.InventoryClickListener;
 import com.artillexstudios.axsellwands.listeners.SellwandUseListener;
@@ -60,6 +61,7 @@ public final class AxSellwands extends AxPlugin {
 //        threadedQueue = new ThreadedQueue<>("AxSellwands-Datastore-thread");
 
         HookManager.setup();
+        StorageIntegrationManager.setup();
         NumberUtils.reload();
         CommandManager.load();
 
@@ -125,7 +127,7 @@ public final class AxSellwands extends AxPlugin {
 
     public static SimpleEntry<Boolean, String> getPluginInfo(Plugin p){
         return new SimpleEntry<>(
-                p != null,
+                p != null,// && p.isEnabled(),
                 p == null ? "" : p.getDescription().getVersion()
         );
     }

@@ -18,6 +18,10 @@ import static com.artillexstudios.axsellwands.AxSellwands.IE;
 import static com.artillexstudios.axsellwands.AxSellwands.FM;
 import static com.artillexstudios.axsellwands.AxSellwands.SF;
 
+/**
+ * @deprecated Use {@link com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager}
+ */
+@Deprecated
 public class SlimefunHook {
     static int[] OUTPUT_SLOTS = {24,25};
     static int IE_OUTPUT_SLOT = 16;

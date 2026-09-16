@@ -8,14 +8,12 @@ import com.artillexstudios.axintegrations.types.ProtectionIntegration;
 import com.artillexstudios.axintegrations.types.ShopIntegration;
 import com.artillexstudios.axsellwands.AxSellwands;
 import com.artillexstudios.axsellwands.api.events.AxSellwandsSellEvent;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager;
 import com.artillexstudios.axsellwands.sellwands.Sellwand;
 import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.HistoryUtils;
 import com.artillexstudios.axsellwands.utils.HologramUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
-import io.github.mooy1.infinityexpansion.items.storage.StorageUnit;
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -28,12 +26,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 
 import static com.artillexstudios.axsellwands.AxSellwands.*;
-import static com.artillexstudios.axsellwands.hooks.SlimefunHook.*;
+import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.*;
 
 public class SellwandUseListener implements Listener {
 
@@ -77,6 +73,11 @@ public class SellwandUseListener implements Listener {
         event.setCancelled(true);
         if (sellwand == null) return;
         Player player = event.getPlayer();
+        boolean hasBypass = player.hasPermission("axsellwands.admin");
+        if (!hasBypass && !ProtectionIntegration.hasPermission(player, block.getLocation(), ProtectionIntegration.Permission.BREAK)) {
+            MESSAGEUTILS.sendLang(player, "no-permission");
+            return;
+        }
 
         ItemStack[] contents;
         ContainerIntegration integration = ContainerIntegration.getContainerIntegration(block);
@@ -88,39 +89,12 @@ public class SellwandUseListener implements Listener {
             } else if (block.getType() == Material.ENDER_CHEST) {
                 contents = player.getEnderChest().getContents();
             } else if (CONFIG.getBoolean("slimefun-integration") && getPlugin("Slimefun") != null){
-
-                if (isUnit(block)){
-                    SimpleEntry<StorageUnit, Location> data = getUnitBySign(block);
-                    if (data == null) return;
-                    Block b = data.getValue().getBlock();
-
-                    BlockMenu menu = BlockStorage.getInventory(b);
-                    if (menu == null) return;
-                    if (menu.hasViewer()) {
-                        MESSAGEUTILS.sendLang(player, "block-has-viewer");
-                        return;
-                    }
-
-                    contents = new ItemStack[]{getContents(b)};
-                } else if (isBarrel(block)) {
-                    BlockMenu menu = BlockStorage.getInventory(block);
-                    if (menu == null) return;
-                    if (menu.hasViewer()) {
-                        MESSAGEUTILS.sendLang(player, "block-has-viewer");
-                        return;
-                    }
-                    contents = new ItemStack[]{getBarrelContents(block)};
-                } else return;
+                boolean isStorage = isStorage(block);
+                if (!isStorage) return;
+                contents = new ItemStack[]{getContents(block)};
             } else {
                 return; // not a container
             }
-        }
-
-        boolean hasBypass = player.hasPermission("axsellwands.admin");
-
-        if (!hasBypass && !ProtectionIntegration.hasPermission(player, block.getLocation(), ProtectionIntegration.Permission.BREAK)) {
-            MESSAGEUTILS.sendLang(player, "no-permission");
-            return;
         }
 
         if (sellwand.getDisallowed().contains(block.getType()) || (!sellwand.getAllowed().isEmpty() && !sellwand.getAllowed().contains(block.getType()))) {
@@ -180,13 +154,8 @@ public class SellwandUseListener implements Listener {
             if (apiEvent.isCancelled()) return;
             newSoldPrice = apiEvent.getMoneyMade();
 
-            if (isUnit(block)){
-                SimpleEntry<StorageUnit, Location> data = getUnitBySign(block);
-                if (data == null) return;
-                emptyUnit(data.getValue().getBlock());
-            } else if (isBarrel(block)){
-                emptyBarrel(block);
-                getBarrel(block).updateHologram(block, null, "&cEmpty");
+            if (isStorage(block)){
+                emptyStorage(block);
             }
 
             StringBuilder str = new StringBuilder("[");
