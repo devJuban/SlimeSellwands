@@ -55,6 +55,8 @@ public class FluffyMachines implements StorageAPI {
         for (int slot : OUTPUT_SLOTS){
             menu.replaceExistingItem(slot, null);
         }
+
+        barrel.updateHologram(b, null, "&cEmpty");
     }
 
     @Nullable

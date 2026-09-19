@@ -8,12 +8,12 @@ import com.artillexstudios.axintegrations.types.ProtectionIntegration;
 import com.artillexstudios.axintegrations.types.ShopIntegration;
 import com.artillexstudios.axsellwands.AxSellwands;
 import com.artillexstudios.axsellwands.api.events.AxSellwandsSellEvent;
-import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager;
 import com.artillexstudios.axsellwands.sellwands.Sellwand;
 import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.HistoryUtils;
 import com.artillexstudios.axsellwands.utils.HologramUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
+import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -91,6 +91,13 @@ public class SellwandUseListener implements Listener {
             } else if (CONFIG.getBoolean("slimefun-integration") && getPlugin("Slimefun") != null){
                 boolean isStorage = isStorage(block);
                 if (!isStorage) return;
+                BlockMenu menu = getBlockMenu(block);
+                if (menu == null) return;
+
+                if (menu.hasViewer()){
+                    MESSAGEUTILS.sendLang(player, "block-has-viewer");
+                    return;
+                }
                 contents = new ItemStack[]{getContents(block)};
             } else {
                 return; // not a container
