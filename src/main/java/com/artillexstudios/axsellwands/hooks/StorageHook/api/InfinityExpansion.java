@@ -1,6 +1,6 @@
 package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
-import com.artillexstudios.axsellwands.hooks.StorageHook.StorageAPI;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageHook;
 import io.github.mooy1.infinityexpansion.items.storage.StorageUnit;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -13,7 +13,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap.SimpleEntry;
 
-public class InfinityExpansion implements StorageAPI {
+import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getBlockMenu;
+
+public class InfinityExpansion implements StorageHook {
 
     public final int[] OUTPUT_SLOTS = {16};
 
@@ -40,12 +42,6 @@ public class InfinityExpansion implements StorageAPI {
         }
 
         return new ItemStack(stored.getType(), amount);
-    }
-
-    @Override
-    @Nullable
-    public BlockMenu getBlockMenu(Block b) {
-        return BlockStorage.getInventory(b);
     }
 
     @Override

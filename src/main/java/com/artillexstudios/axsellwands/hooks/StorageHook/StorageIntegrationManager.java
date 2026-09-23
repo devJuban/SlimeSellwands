@@ -17,7 +17,7 @@ import static com.artillexstudios.axsellwands.AxSellwands.SF;
 
 public class StorageIntegrationManager {
 
-    private static List<StorageAPI> StorageHook = new ArrayList<>();
+    private static List<StorageHook> StorageHook = new ArrayList<>();
 
     public static void setup(){
         StorageHook.clear();
@@ -34,7 +34,7 @@ public class StorageIntegrationManager {
     }
 
     public static boolean isStorage(Block b){
-        for (StorageAPI api : getStorageHook()){
+        for (StorageHook api : getStorageHook()){
             if (api.isStorage(b)) return true;
         }
 
@@ -42,14 +42,14 @@ public class StorageIntegrationManager {
     }
 
     public static void emptyStorage(Block b){
-        for (StorageAPI api : getStorageHook()){
+        for (StorageHook api : getStorageHook()){
             api.emptyStorage(b);
         }
     }
 
     @Nullable
     public static ItemStack getContents(Block b){
-        for (StorageAPI api : getStorageHook()){
+        for (StorageHook api : getStorageHook()){
             if (api.getContents(b) != null){
                 return api.getContents(b);
             }
@@ -60,16 +60,10 @@ public class StorageIntegrationManager {
 
     @Nullable
     public static BlockMenu getBlockMenu(Block b){
-        for (StorageAPI api : getStorageHook()){
-            if (api.getContents(b) != null){
-                return api.getBlockMenu(b);
-            }
-        }
-
-        return null;
+        return BlockStorage.getInventory(b);
     }
 
-    public static List<StorageAPI> getStorageHook(){
+    public static List<StorageHook> getStorageHook(){
         return StorageHook;
     }
 

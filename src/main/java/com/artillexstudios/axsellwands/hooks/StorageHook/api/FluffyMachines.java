@@ -1,15 +1,16 @@
 package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
-import com.artillexstudios.axsellwands.hooks.StorageHook.StorageAPI;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageHook;
 import io.ncbpfluffybear.fluffymachines.items.Barrel;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public class FluffyMachines implements StorageAPI {
+import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getBlockMenu;
+
+public class FluffyMachines implements StorageHook {
 
     public final int[] OUTPUT_SLOTS = {24,25};
 
@@ -36,12 +37,6 @@ public class FluffyMachines implements StorageAPI {
         }
 
         return new ItemStack(stored.getType(), amount);
-    }
-
-    @Override
-    @Nullable
-    public BlockMenu getBlockMenu(Block b) {
-        return BlockStorage.getInventory(b);
     }
 
     @Override

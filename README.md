@@ -25,7 +25,7 @@ and FluffyMachines are currently supported. I will NOT add 1.16 support due to A
 | `./BetterInfinityExpansion`   | Hook for BetterInfinityExpansion |
 | `./FluffyMachines`            | Hook for FluffyMachines          |
 | `./InfinityExpansion`         | Hook for InfinityExpansion       |
-| `./StorageAPI`                | Blueprint for API                |
+| `./StorageHook`               | Blueprint for API                |
 | `./StorageIntegrationManager` | StorageHook manager              |
 | `./SlimefunHook`              | DEPRECATED: Old Slimefun Hook    |
 
