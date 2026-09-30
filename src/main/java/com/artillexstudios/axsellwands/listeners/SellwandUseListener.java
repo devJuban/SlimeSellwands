@@ -84,11 +84,7 @@ public class SellwandUseListener implements Listener {
         if (integration != null) {
             contents = integration.getContents(block).toArray(new ItemStack[0]);
         } else {
-            if (block.getState() instanceof Container && !isSlimefunItem(block)) {
-                contents = ((Container) block.getState()).getInventory().getContents();
-            } else if (block.getType() == Material.ENDER_CHEST) {
-                contents = player.getEnderChest().getContents();
-            } else if (CONFIG.getBoolean("slimefun-integration") && getPlugin("Slimefun") != null){
+            if (isSlimefunItem(block)){
                 boolean isStorage = isStorage(block);
                 if (!isStorage) return;
                 BlockMenu menu = getBlockMenu(block);
@@ -99,9 +95,11 @@ public class SellwandUseListener implements Listener {
                     return;
                 }
                 contents = new ItemStack[]{getContents(block)};
-            } else {
-                return; // not a container
-            }
+            } else if (block.getState() instanceof Container){
+                contents = ((Container) block.getState()).getInventory().getContents();
+            } else if (block.getType() == Material.ENDER_CHEST){
+                contents = player.getEnderChest().getContents();
+            } else return; // not a container
         }
 
         if (sellwand.getDisallowed().contains(block.getType()) || (!sellwand.getAllowed().isEmpty() && !sellwand.getAllowed().contains(block.getType()))) {

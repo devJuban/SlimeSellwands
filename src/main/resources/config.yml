@@ -10,7 +10,7 @@ prefix: "<gradient:#FF5500:#FF7700><bold>AxSellwands</gradient> &7» "
 stacking-mode: 1
 
 # Slimefun integration
-slimefun-integration: false
+slimefun-integration: true
 
 # if true: when merging two sell wands, their usage limit can go over the limit
 allow-going-over-limit: false

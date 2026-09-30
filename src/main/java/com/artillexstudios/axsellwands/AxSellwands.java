@@ -34,12 +34,6 @@ public final class AxSellwands extends AxPlugin {
     public static MessageUtils MESSAGEUTILS;
     private static AxPlugin instance;
 
-//    private static ThreadedQueue<Runnable> threadedQueue;
-
-//    public static ThreadedQueue<Runnable> getThreadedQueue() {
-//        return threadedQueue;
-//    }
-
     public static SimpleEntry<Boolean, String> BIE = getPluginInfo(getPlugin("BetterInfinityExpansion"));
     public static SimpleEntry<Boolean, String> IE = getPluginInfo(getPlugin("InfinityExpansion"));
     public static SimpleEntry<Boolean, String> FM = getPluginInfo(getPlugin("FluffyMachines"));
@@ -49,6 +43,20 @@ public final class AxSellwands extends AxPlugin {
         return instance;
     }
 
+    @Override
+    public void load() {
+        // remove legacy libs
+        File libs = new File(getDataFolder(), "libs");
+        if (libs.exists()) {
+            com.artillexstudios.axapi.utils.file.FileUtils.deleteNested(libs.toPath());
+        }
+        File lib = new File(getDataFolder(), "lib");
+        if (lib.exists()) {
+            com.artillexstudios.axapi.utils.file.FileUtils.deleteNested(lib.toPath());
+        }
+    }
+
+    @Override
     public void enable() {
         instance = this;
 
@@ -57,8 +65,6 @@ public final class AxSellwands extends AxPlugin {
         HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
 
         MESSAGEUTILS = new MessageUtils(LANG.getBackingDocument(), "prefix", CONFIG.getBackingDocument());
-
-//        threadedQueue = new ThreadedQueue<>("AxSellwands-Datastore-thread");
 
         HookManager.setup();
         StorageIntegrationManager.setup();
@@ -109,12 +115,12 @@ public final class AxSellwands extends AxPlugin {
         }
     }
 
+    @Override
     public void disable() {
         //
     }
 
     public void updateFlags() {
-        FeatureFlags.USE_LEGACY_HEX_FORMATTER.set(false);
         FeatureFlags.PACKET_ENTITY_TRACKER_ENABLED.set(true);
         FeatureFlags.HOLOGRAM_UPDATE_TICKS.set(20L);
         FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.set(1);

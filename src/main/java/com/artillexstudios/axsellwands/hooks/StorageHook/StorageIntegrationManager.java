@@ -5,7 +5,6 @@ import com.artillexstudios.axsellwands.hooks.StorageHook.api.FluffyMachines;
 import com.artillexstudios.axsellwands.hooks.StorageHook.api.InfinityExpansion;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -13,24 +12,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.artillexstudios.axsellwands.AxSellwands.SF;
+import static com.artillexstudios.axsellwands.AxSellwands.*;
 
 public class StorageIntegrationManager {
 
-    private static List<StorageHook> StorageHook = new ArrayList<>();
+    private static final List<StorageHook> StorageHook = new ArrayList<>();
 
     public static void setup(){
         StorageHook.clear();
 
-        if (checkPlugin("BetterInfinityExpansion")){
-            StorageHook.add(new BetterInfinityExpansion());
-        }
-        if (checkPlugin("InfinityExpansion")){
-            StorageHook.add(new InfinityExpansion());
-        }
-        if (checkPlugin("FluffyMachines")){
-            StorageHook.add(new FluffyMachines());
-        }
+        if (BIE.getKey()) StorageHook.add(new BetterInfinityExpansion());
+        if (IE.getKey())  StorageHook.add(new InfinityExpansion());
+        if (FM.getKey())  StorageHook.add(new FluffyMachines());
     }
 
     public static boolean isStorage(Block b){
@@ -68,12 +61,8 @@ public class StorageIntegrationManager {
     }
 
     public static boolean isSlimefunItem(Block b){
-        if (SF.getKey()){
+        if (SF.getKey() && CONFIG.getBoolean("slimefun-integration", true)){
             return BlockStorage.check(b) != null;
         } else return false;
-    }
-
-    private static boolean checkPlugin(String plugin){
-        return Bukkit.getPluginManager().getPlugin(plugin) != null;
     }
 }
