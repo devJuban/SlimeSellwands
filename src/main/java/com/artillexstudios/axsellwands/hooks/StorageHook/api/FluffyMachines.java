@@ -20,7 +20,6 @@ public class FluffyMachines implements StorageHook {
     }
 
     @Override
-    @Nullable
     public ItemStack getContents(Block b) {
         Barrel barrel = getBarrel(b);
         if (barrel == null) return null;

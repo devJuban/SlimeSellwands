@@ -25,7 +25,6 @@ public class InfinityExpansion implements StorageHook {
     }
 
     @Override
-    @Nullable
     public ItemStack getContents(Block b) {
         SimpleEntry<StorageUnit, Location> unit = getStorageUnit(b);
         if (unit == null) return null;

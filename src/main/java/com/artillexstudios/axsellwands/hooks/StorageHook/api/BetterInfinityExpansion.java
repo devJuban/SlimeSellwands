@@ -18,7 +18,6 @@ public class BetterInfinityExpansion implements StorageHook {
     }
 
     @Override
-    @Nullable
     public ItemStack getContents(Block b) {
         SimpleEntry<StorageUnit, Location> data = getUnit(b);
         if (data == null) return null;

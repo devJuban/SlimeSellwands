@@ -84,9 +84,7 @@ public class SellwandUseListener implements Listener {
         if (integration != null) {
             contents = integration.getContents(block).toArray(new ItemStack[0]);
         } else {
-            if (isSlimefunItem(block)){
-                boolean isStorage = isStorage(block);
-                if (!isStorage) return;
+            if (isSlimefunItem(block) && isStorage(block)){
                 BlockMenu menu = getBlockMenu(block);
                 if (menu == null) return;
 
@@ -95,8 +93,8 @@ public class SellwandUseListener implements Listener {
                     return;
                 }
                 contents = new ItemStack[]{getContents(block)};
-            } else if (block.getState() instanceof Container){
-                contents = ((Container) block.getState()).getInventory().getContents();
+            } else if (block.getState() instanceof Container container){
+                contents = container.getInventory().getContents();
             } else if (block.getType() == Material.ENDER_CHEST){
                 contents = player.getEnderChest().getContents();
             } else return; // not a container
