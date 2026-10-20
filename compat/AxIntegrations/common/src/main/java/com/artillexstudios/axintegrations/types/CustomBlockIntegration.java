@@ -1,0 +1,68 @@
+package com.artillexstudios.axintegrations.types;
+
+import com.artillexstudios.axintegrations.Integration;
+import com.artillexstudios.axintegrations.IntegrationManager;
+import com.artillexstudios.axintegrations.IntegrationType;
+import org.bukkit.Location;
+import java.util.List;
+
+/**
+ * Rules
+ * -
+ */
+public abstract class CustomBlockIntegration extends Integration {
+
+    /**
+     * returns all loaded integrations
+     */
+    public static List<CustomBlockIntegration> list() {
+        return IntegrationManager.getIntegrations(CustomBlockIntegration.class);
+    }
+
+    /**
+     * returns a loaded integration
+     * if you register multiple, you should use {@link this#list()} instead
+     */
+        public static CustomBlockIntegration one() {
+        return list().stream().findFirst().orElse(null);
+    }
+
+    /**
+     * returns a loaded integration by name
+     */
+        public static CustomBlockIntegration one(String name) {
+        return list().stream().filter(i -> {
+            return i.getName().equalsIgnoreCase(name) || i.getFormattedName().equalsIgnoreCase(name);
+        }).findFirst().orElse(null);
+    }
+
+    public CustomBlockIntegration(String name) {
+        super(name, IntegrationType.CUSTOM_BLOCK);
+    }
+
+    public static boolean isBlockCustom(String itemId) {
+        for (CustomBlockIntegration integration : list()) {
+            if (integration.isCustomBlock(itemId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isBlockCustom(Location location) {
+        for (CustomBlockIntegration integration : list()) {
+            if (integration.isCustomBlock(location)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public abstract boolean isCustomBlock(String itemId);
+
+    public abstract boolean isCustomBlock(Location location);
+
+    public abstract boolean place(String itemId, Location location);
+
+    public abstract boolean remove(Location location);
+}

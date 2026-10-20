@@ -1,14 +1,10 @@
 package com.artillexstudios.axsellwands.utils;
 
-import com.artillexstudios.axapi.hologram.Hologram;
-import com.artillexstudios.axapi.hologram.HologramType;
-import com.artillexstudios.axapi.hologram.HologramTypes;
-import com.artillexstudios.axapi.hologram.page.HologramPage;
-import com.artillexstudios.axapi.libs.boostedyaml.block.implementation.Section;
-import com.artillexstudios.axapi.packetentity.meta.entity.DisplayMeta;
-import com.artillexstudios.axapi.packetentity.meta.entity.TextDisplayMeta;
 import com.artillexstudios.axapi.scheduler.Scheduler;
+import com.artillexstudios.axapi.utils.StringUtils;
 import org.bukkit.Location;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -21,37 +17,35 @@ import java.util.Map;
 import static com.artillexstudios.axsellwands.AxSellwands.CONFIG;
 import static com.artillexstudios.axsellwands.AxSellwands.LANG;
 
-public class HologramUtils {
+/** Bukkit-only hologram fallback that works on legacy servers without display entities. */
+public final class HologramUtils {
+    private HologramUtils() { }
 
     public static void spawnHologram(@NotNull Player player, @NotNull Location location, HashMap<String, String> replacements) {
         Vector diff = location.toVector().subtract(player.getLocation().toVector());
         diff.subtract(diff.clone().normalize());
-        location = player.getLocation().toVector().add(diff).toLocation(location.getWorld());
-
-        Hologram hologram = new Hologram(location);
-        HologramPage<String, HologramType<String>> page = hologram.createPage(HologramTypes.TEXT);
-
-        Section section = CONFIG.getSection("hologram");
-        page.setEntityMetaHandler(m -> {
-            TextDisplayMeta meta = (TextDisplayMeta) m;
-            meta.seeThrough(section.getBoolean("see-through"));
-            meta.shadow(section.getBoolean("shadow", true));
-            meta.alignment(TextDisplayMeta.Alignment.valueOf(section.getString("alignment").toUpperCase()));
-            meta.backgroundColor(Integer.parseInt(section.getString("background-color"), 16));
-            meta.lineWidth(1000);
-            meta.billboardConstrain(DisplayMeta.BillboardConstrain.valueOf(section.getString("billboard").toUpperCase()));
-        });
-
+        Location spawn = player.getLocation().toVector().add(diff).toLocation(location.getWorld());
         List<String> lines = new ArrayList<>();
         for (String line : LANG.getStringList("sell-hologram")) {
-            for (Map.Entry<String, String> entry : replacements.entrySet()) {
-                line = line.replace(entry.getKey(), entry.getValue());
-            }
-            lines.add(line);
+            for (Map.Entry<String, String> entry : replacements.entrySet()) line = line.replace(entry.getKey(), entry.getValue());
+            lines.add(StringUtils.formatToString(line));
         }
 
-        page.setContent(String.join("<reset><br>", lines));
-        page.spawn();
-        Scheduler.get().runLaterAt(location, scheduledTask -> hologram.remove(), CONFIG.getInt("hologram.stay-time-ticks", 30));
+        final List<Entity> stands = new ArrayList<>();
+        for (int i = 0; i < lines.size(); i++) {
+            Location lineLocation = spawn.clone().add(0, (lines.size() - i - 1) * 0.25, 0);
+            ArmorStand stand = spawn.getWorld().spawn(lineLocation, ArmorStand.class);
+            stand.setVisible(false);
+            stand.setCustomName(lines.get(i));
+            stand.setCustomNameVisible(true);
+            stand.setGravity(false);
+            try { stand.setMarker(true); } catch (NoSuchMethodError ignored) { }
+            try { stand.setSmall(true); } catch (NoSuchMethodError ignored) { }
+            try { stand.setBasePlate(false); } catch (NoSuchMethodError ignored) { }
+            stands.add(stand);
+        }
+        Scheduler.get().runLaterAt(spawn, task -> {
+            for (Entity stand : stands) if (stand.isValid()) stand.remove();
+        }, CONFIG.getInt("hologram.stay-time-ticks", 30));
     }
 }

@@ -10,14 +10,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class UpdateNotifier implements Listener {
     private static Config config;
@@ -79,18 +78,21 @@ public class UpdateNotifier implements Listener {
 
     @Nullable
     private String readVersion() {
-        try (HttpClient client = HttpClient.newHttpClient()) {
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://www.artillex-studios.com/api/v1/resource/%s/latest-version".formatted(AxSellwands.getInstance().getName())))
-                    .timeout(Duration.of(10, SECONDS))
-                    .GET()
-                    .build();
-
-            HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) return null;
-            return response.body().toString();
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(String.format("https://www.artillex-studios.com/api/v1/resource/%s/latest-version", AxSellwands.getInstance().getName()));
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(10000);
+            connection.setReadTimeout(10000);
+            connection.setRequestMethod("GET");
+            if (connection.getResponseCode() != 200) return null;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                return reader.readLine();
+            }
         } catch (Exception ex) {
             return null;
+        } finally {
+            if (connection != null) connection.disconnect();
         }
     }
 

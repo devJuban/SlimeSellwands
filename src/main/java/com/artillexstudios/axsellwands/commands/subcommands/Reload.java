@@ -19,19 +19,19 @@ public enum Reload {
     public void execute(CommandSender sender) {
         Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] &#FFAAAAReloading configuration..."));
         if (!CONFIG.reload()) {
-            MESSAGEUTILS.sendFormatted(sender, "reload.failed", Map.of("%file%", "config.yml"));
+            MESSAGEUTILS.sendFormatted(sender, "reload.failed", java.util.Collections.singletonMap("%file%", "config.yml"));
             return;
         }
         Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500╠ &#FFEEAAReloaded &fconfig.yml&#FFEEAA!"));
 
         if (!LANG.reload()) {
-            MESSAGEUTILS.sendFormatted(sender, "reload.failed", Map.of("%file%", "lang.yml"));
+            MESSAGEUTILS.sendFormatted(sender, "reload.failed", java.util.Collections.singletonMap("%file%", "lang.yml"));
             return;
         }
         Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500╠ &#FFEEAAReloaded &flang.yml&#FFEEAA!"));
 
         if (!HOOKS.reload()) {
-            MESSAGEUTILS.sendFormatted(sender, "reload.failed", Map.of("%file%", "hooks.yml"));
+            MESSAGEUTILS.sendFormatted(sender, "reload.failed", java.util.Collections.singletonMap("%file%", "hooks.yml"));
             return;
         }
         Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500╠ &#FFEEAAReloaded &fhooks.yml&#FFEEAA!"));

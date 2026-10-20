@@ -2,11 +2,6 @@ package com.artillexstudios.axsellwands;
 
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.config.Config;
-import com.artillexstudios.axapi.libs.boostedyaml.dvs.versioning.BasicVersioning;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.dumper.DumperSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.general.GeneralSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.loader.LoaderSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.updater.UpdaterSettings;
 import com.artillexstudios.axapi.utils.MessageUtils;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -60,11 +55,11 @@ public final class AxSellwands extends AxPlugin {
     public void enable() {
         instance = this;
 
-        CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
-        LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
-        HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
+        CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"));
+        LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"));
+        HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"));
 
-        MESSAGEUTILS = new MessageUtils(LANG.getBackingDocument(), "prefix", CONFIG.getBackingDocument());
+        MESSAGEUTILS = new MessageUtils(LANG, CONFIG);
 
         HookManager.setup();
         StorageIntegrationManager.setup();
@@ -139,7 +134,14 @@ public final class AxSellwands extends AxPlugin {
     }
 
     public static boolean compare(String v1, String v2){
-        return Runtime.Version.parse(v1).compareTo(Runtime.Version.parse(v2)) >= 0;
+        String[] left = v1.split("\\.");
+        String[] right = v2.split("\\.");
+        for (int i = 0; i < Math.max(left.length, right.length); i++) {
+            int a = i < left.length ? Integer.parseInt(left[i]) : 0;
+            int b = i < right.length ? Integer.parseInt(right[i]) : 0;
+            if (a != b) return a > b;
+        }
+        return true;
     }
 
     public void sendMessage(String msg){

@@ -2,10 +2,10 @@ package com.artillexstudios.axsellwands.listeners;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
 import com.artillexstudios.axapi.utils.*;
-import com.artillexstudios.axintegrations.types.ContainerIntegration;
-import com.artillexstudios.axintegrations.types.CurrencyIntegration;
-import com.artillexstudios.axintegrations.types.ProtectionIntegration;
-import com.artillexstudios.axintegrations.types.ShopIntegration;
+import com.artillexstudios.axsellwands.hooks.integration.ContainerIntegration;
+import com.artillexstudios.axsellwands.hooks.integration.CurrencyIntegration;
+import com.artillexstudios.axsellwands.hooks.integration.ProtectionIntegration;
+import com.artillexstudios.axsellwands.hooks.integration.ShopIntegration;
 import com.artillexstudios.axsellwands.AxSellwands;
 import com.artillexstudios.axsellwands.api.events.AxSellwandsSellEvent;
 import com.artillexstudios.axsellwands.sellwands.Sellwand;
@@ -13,10 +13,10 @@ import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.HistoryUtils;
 import com.artillexstudios.axsellwands.utils.HologramUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -41,13 +41,13 @@ public class SellwandUseListener implements Listener {
         try {
             eventPriority = EventPriority.valueOf(priority);
         } catch (IllegalArgumentException ex) {
-            Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Invalid event priority: &#FFAAAA%s".formatted(priority)));
+            Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString(String.format("&#FF0000[AxSellwands] Invalid event priority: &#FFAAAA%s", priority)));
             eventPriority = EventPriority.LOW;
         }
 
         EventExecutor executor = (listener, event) -> {
-            if (listener instanceof SellwandUseListener && event instanceof PlayerInteractEvent useEvent) {
-                useListener.onInteract(useEvent);
+            if (listener instanceof SellwandUseListener && event instanceof PlayerInteractEvent) {
+                useListener.onInteract((PlayerInteractEvent) event);
             }
         };
 
@@ -80,12 +80,15 @@ public class SellwandUseListener implements Listener {
         }
 
         ItemStack[] contents;
+        Inventory targetInventory = null;
+        boolean storageContainer = false;
         ContainerIntegration integration = ContainerIntegration.getContainerIntegration(block);
         if (integration != null) {
             contents = integration.getContents(block).toArray(new ItemStack[0]);
+            targetInventory = integration.getInventory();
         } else {
             if (isSlimefunItem(block) && isStorage(block)){
-                BlockMenu menu = getBlockMenu(block);
+                com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.BlockMenuAccess menu = getBlockMenu(block);
                 if (menu == null) return;
 
                 if (menu.hasViewer()){
@@ -93,10 +96,13 @@ public class SellwandUseListener implements Listener {
                     return;
                 }
                 contents = new ItemStack[]{getContents(block)};
-            } else if (block.getState() instanceof Container container){
-                contents = container.getInventory().getContents();
+                storageContainer = true;
+            } else if (block.getState() instanceof InventoryHolder){
+                targetInventory = ((InventoryHolder) block.getState()).getInventory();
+                contents = targetInventory.getContents();
             } else if (block.getType() == Material.ENDER_CHEST){
-                contents = player.getEnderChest().getContents();
+                targetInventory = player.getEnderChest();
+                contents = targetInventory.getContents();
             } else return; // not a container
         }
 
@@ -129,7 +135,9 @@ public class SellwandUseListener implements Listener {
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Map<Material, Integer> items = new HashMap<>();
-            for (ItemStack it : contents) {
+            List<Integer> soldSlots = new ArrayList<>();
+            for (int slot = 0; slot < contents.length; slot++) {
+                ItemStack it = contents[slot];
                 if (it == null) continue;
                 Double price = shopIntegration.getSellPrice(player.getUniqueId(), it);
                 if (price == null || price <= 0) continue;
@@ -143,8 +151,7 @@ public class SellwandUseListener implements Listener {
                 } else {
                     items.put(it.getType(), it.getAmount());
                 }
-
-                it.setAmount(0);
+                soldSlots.add(slot);
             }
 
             if (newSoldAmount <= 0 || newSoldPrice <= 0) {
@@ -156,9 +163,27 @@ public class SellwandUseListener implements Listener {
             Bukkit.getPluginManager().callEvent(apiEvent);
             if (apiEvent.isCancelled()) return;
             newSoldPrice = apiEvent.getMoneyMade();
+            if (Double.isNaN(newSoldPrice) || Double.isInfinite(newSoldPrice) || newSoldPrice <= 0) return;
 
-            if (isStorage(block)){
+            CurrencyIntegration currencyIntegration = CurrencyIntegration.one();
+            if (currencyIntegration == null) {
+                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Failed to sell items, no economy plugin selected in the hooks.yml!"));
+                return;
+            }
+            try {
+                if (!currencyIntegration.giveBalance(player.getUniqueId(), newSoldPrice)) {
+                    Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Economy rejected a sellwand payment; container contents were kept."));
+                    return;
+                }
+            } catch (RuntimeException ex) {
+                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Economy payment failed; container contents were kept."));
+                return;
+            }
+
+            if (storageContainer || isStorage(block)){
                 emptyStorage(block);
+            } else if (targetInventory != null) {
+                for (Integer slot : soldSlots) targetInventory.setItem(slot, null);
             }
 
             StringBuilder str = new StringBuilder("[");
@@ -175,24 +200,17 @@ public class SellwandUseListener implements Listener {
             replacements.put("%amount%", "" + newSoldAmount);
             replacements.put("%price%", NumberUtils.formatNumber(newSoldPrice));
 
-            CurrencyIntegration currencyIntegration = CurrencyIntegration.one();
-            if (currencyIntegration == null) {
-                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Failed to sell items, no economy plugin selected in the hooks.yml!"));
-                return;
-            }
-            currencyIntegration.giveBalance(player.getUniqueId(), newSoldPrice);
-
             if (CONFIG.getBoolean("hologram.enabled", true)) {
                 HologramUtils.spawnHologram(player, block.getLocation().add(0.5, 0.5, 0.5), replacements);
             }
 
             MESSAGEUTILS.sendLang(player, "sell.chat", replacements);
 
-            if (!LANG.getString("sell.actionbar", "").isBlank()) {
+            if (!LANG.getString("sell.actionbar", "").trim().isEmpty()) {
                 ActionBar.create(StringUtils.format(LANG.getString("sell.actionbar"), replacements)).send(player);
             }
 
-            if (LANG.getSection("sell.title") != null && !LANG.getString("sell.title.title").isBlank()) {
+            if (LANG.getSection("sell.title") != null && !LANG.getString("sell.title.title").trim().isEmpty()) {
                 Title.create(
                         StringUtils.format(LANG.getString("sell.title.title"), replacements),
                         StringUtils.format(LANG.getString("sell.title.subtitle"), replacements), 10, 40, 10
@@ -200,11 +218,11 @@ public class SellwandUseListener implements Listener {
             }
 
             if (!LANG.getString("sounds.sell").isEmpty()) {
-                player.playSound(player.getLocation(), Sound.valueOf(LANG.getString("sounds.sell")), 1f, 1f);
+                com.artillexstudios.axsellwands.utils.VersionCompat.playSound(player, LANG.getString("sounds.sell"));
             }
 
             if (!LANG.getString("particles.sell").isEmpty()) {
-                player.spawnParticle(Particle.valueOf(LANG.getString("particles.sell")), block.getLocation().add(0.5, 0.5, 0.5), 30, 0.5, 0.5, 0.5);
+                com.artillexstudios.axsellwands.utils.VersionCompat.spawnParticle(player, LANG.getString("particles.sell"), block.getLocation().add(0.5, 0.5, 0.5), 30, 0.5, 0.5, 0.5);
             }
 
             if (uses != -1) {
@@ -239,7 +257,7 @@ public class SellwandUseListener implements Listener {
             wrapper.set("axsellwands-max-uses", maxUses);
             wrapper.build();
 
-            if (block.getState() instanceof Container container) container.update();
+            block.getState().update();
         } else {
             for (ItemStack it : contents) {
                 if (it == null) continue;
@@ -262,11 +280,11 @@ public class SellwandUseListener implements Listener {
 
             MESSAGEUTILS.sendLang(player, "inspect.chat", replacements);
 
-            if (!LANG.getString("inspect.actionbar", "").isBlank()) {
+            if (!LANG.getString("inspect.actionbar", "").trim().isEmpty()) {
                 ActionBar.create(StringUtils.format(LANG.getString("inspect.actionbar"), replacements)).send(player);
             }
 
-            if (LANG.getSection("inspect.title") != null && !LANG.getString("inspect.title.title").isBlank()) {
+            if (LANG.getSection("inspect.title") != null && !LANG.getString("inspect.title.title").trim().isEmpty()) {
                 Title.create(
                         StringUtils.format(LANG.getString("inspect.title.title"), replacements),
                         StringUtils.format(LANG.getString("inspect.title.subtitle"), replacements),
@@ -275,11 +293,11 @@ public class SellwandUseListener implements Listener {
             }
 
             if (!LANG.getString("sounds.inspect").isEmpty()) {
-                player.playSound(player.getLocation(), Sound.valueOf(LANG.getString("sounds.inspect")), 1f, 1f);
+                com.artillexstudios.axsellwands.utils.VersionCompat.playSound(player, LANG.getString("sounds.inspect"));
             }
 
             if (!LANG.getString("particles.inspect").isEmpty()) {
-                player.spawnParticle(Particle.valueOf(LANG.getString("particles.inspect")), block.getLocation().add(0.5, 0.5, 0.5), 30, 0.5, 0.5, 0.5);
+                com.artillexstudios.axsellwands.utils.VersionCompat.spawnParticle(player, LANG.getString("particles.inspect"), block.getLocation().add(0.5, 0.5, 0.5), 30, 0.5, 0.5, 0.5);
             }
         }
     }

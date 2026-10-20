@@ -1,0 +1,29 @@
+package com.artillexstudios.axapi.loot;
+
+public enum LootContextParamSets {
+    EMPTY,
+    CHEST,
+    COMMAND,
+    SELECTOR,
+    FISHING,
+    ENTITY,
+    EQUIPMENT,
+    ARCHAEOLOGY,
+    GIFT,
+    PIGLIN_BARTER,
+    VAULT,
+    ADVANCEMENT_REWARD,
+    ADVANCEMENT_ENTITY,
+    ADVANCEMENT_LOCATION,
+    BLOCK_USE,
+    ALL_PARAMS,
+    BLOCK,
+    SHEARING,
+    ENTITY_INTERACT,
+    BLOCK_INTERACT,
+    ENCHANTED_DAMAGE,
+    ENCHANTED_ITEM,
+    ENCHANTED_LOCATION,
+    ENCHANTED_ENTITY,
+    HIT_BLOCK;
+}
