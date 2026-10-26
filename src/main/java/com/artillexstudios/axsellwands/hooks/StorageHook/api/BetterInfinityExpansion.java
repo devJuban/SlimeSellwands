@@ -10,6 +10,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.AbstractMap.SimpleEntry;
 
+/**
+ * To be removed in the two (2) versions time
+ * @deprecated Due to low maintenance. Will be removed soon, but will be replaced by {@link InfinityExpansion}.
+ */
+@Deprecated(forRemoval = true, since = "1.2.6")
 public class BetterInfinityExpansion implements StorageHook {
 
     @Override
