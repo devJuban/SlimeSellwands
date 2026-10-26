@@ -31,8 +31,9 @@ public class FluffyMachines implements StorageHook {
 
         for (int slot : OUTPUT_SLOTS){
             ItemStack item = menu.getItemInSlot(slot);
-            if (item == null || item.getType().isAir() || item.getType() != stored.getType()) continue;
-            amount += item.getAmount();
+            if (item != null && item.getType() == stored.getType()){
+                amount += item.getAmount();
+            }
         }
 
         return new ItemStack(stored.getType(), amount);

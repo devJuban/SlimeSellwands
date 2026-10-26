@@ -27,6 +27,7 @@ public class StorageIntegrationManager {
     }
 
     public static boolean isStorage(Block b){
+
         for (StorageHook api : getStorageHook()){
             if (api.isStorage(b)) return true;
         }
@@ -35,8 +36,11 @@ public class StorageIntegrationManager {
     }
 
     public static void emptyStorage(Block b){
+        if (!isStorage(b)) return;
+
         for (StorageHook api : getStorageHook()){
             api.emptyStorage(b);
+            return;
         }
     }
 
@@ -58,11 +62,5 @@ public class StorageIntegrationManager {
 
     public static List<StorageHook> getStorageHook(){
         return StorageHook;
-    }
-
-    public static boolean isSlimefunItem(Block b){
-        if (SF.getKey() && CONFIG.getBoolean("slimefun-integration", true)){
-            return BlockStorage.check(b) != null;
-        } else return false;
     }
 }

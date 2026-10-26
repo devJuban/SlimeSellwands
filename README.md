@@ -27,7 +27,6 @@ and FluffyMachines are currently supported.
 | `./InfinityExpansion`         | Hook for InfinityExpansion       |
 | `./StorageHook`               | Blueprint for API                |
 | `./StorageIntegrationManager` | StorageHook manager              |
-| `./SlimefunHook`              | DEPRECATED: Old Slimefun Hook    |
 
 # Credits
 [@Artillex-Studios](https://github.com/Artillex-Studios/) - providing AxSellwand

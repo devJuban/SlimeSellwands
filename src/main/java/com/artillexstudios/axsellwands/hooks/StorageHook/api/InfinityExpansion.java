@@ -26,8 +26,7 @@ public class InfinityExpansion implements StorageHook {
 
     @Override
     public ItemStack getContents(Block b) {
-        SimpleEntry<StorageUnit, Location> unit = getStorageUnit(b);
-        if (unit == null) return null;
+        if (!isStorage(b)) return null;
         BlockMenu menu = getBlockMenu(b);
         if (menu == null) return null;
         ItemStack stored = menu.getItemInSlot(13);
@@ -36,8 +35,9 @@ public class InfinityExpansion implements StorageHook {
 
         for (int slot : OUTPUT_SLOTS){
             ItemStack item = menu.getItemInSlot(slot);
-            if (item == null || item.getType().isAir() || item.getType() != stored.getType()) continue;
-            amount += item.getAmount();
+            if (item != null && item.getType() == stored.getType()){
+                amount += item.getAmount();
+            }
         }
 
         return new ItemStack(stored.getType(), amount);

@@ -2,7 +2,7 @@ package com.artillexstudios.axsellwands.hooks.StorageHook;
 
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface StorageHook {
 

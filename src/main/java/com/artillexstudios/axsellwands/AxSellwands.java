@@ -85,31 +85,36 @@ public final class AxSellwands extends AxPlugin {
         UpdateNotifier.init(CONFIG, LANG);
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
-        if (CONFIG.getBoolean("slimefun-integration", false) && SF.getKey()) {
+        if (SF.getKey()) {
 
-           if (BIE.getKey() && compare(BIE.getValue(), "1.2.3")){
-               sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
-           } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")){
-               sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
-               sendMessage("&2You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
+            if (BIE.getKey() && compare(BIE.getValue(), "1.2.3")) {
+                sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
+            } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")) {
+                // BIE V1.2.3 > does not have StorageUnitAPI
+                sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
+                sendMessage("&2You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
 
-               BIE = new SimpleEntry<>(false, BIE.getValue());
-               IE = new SimpleEntry<>(true, IE.getValue());
-           } else if (IE.getKey()) {
-               sendMessage("&aInfinityExpansion detected, integration enabled.");
-           }
+                // override
+                BIE = new SimpleEntry<>(false, BIE.getValue());
+                IE = new SimpleEntry<>(true, IE.getValue());
+            }
 
-           if (FM.getKey()){
-               sendMessage("&aFluffyMachines detected, integration enabled.");
-           }
+            if (IE.getKey()) {
+                sendMessage("&aInfinityExpansion detected, integration enabled.");
+            }
 
-           if (!BIE.getKey() && !IE.getKey() && !FM.getKey()){
+            if (FM.getKey()){
+                sendMessage("&aFluffyMachines detected, integration enabled.");
+            }
+
+            if (!BIE.getKey() && !IE.getKey() && !FM.getKey()) {
                 sendMessage("&4No supported plugins detected.");
                 sendMessage("&4Supported Plugins:");
                 sendMessage("&4 - BetterInfinityExpansion");
                 sendMessage("&4 - InfinityExpansion");
                 sendMessage("&4 - FluffyMachines");
             }
+
         } else {
             sendMessage("&4Slimefun not found or disabled!");
         }
@@ -133,7 +138,7 @@ public final class AxSellwands extends AxPlugin {
 
     public static SimpleEntry<Boolean, String> getPluginInfo(Plugin p){
         return new SimpleEntry<>(
-                p != null,// && p.isEnabled(),
+                p != null && CONFIG.getSection("slimefun").getBoolean(p.getName(), true),
                 p == null ? "" : p.getDescription().getVersion()
         );
     }
