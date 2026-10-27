@@ -25,7 +25,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
-import java.util.AbstractMap.SimpleEntry;
 
 public final class AxSellwands extends AxPlugin {
     public static Config CONFIG;
@@ -34,10 +33,8 @@ public final class AxSellwands extends AxPlugin {
     public static MessageUtils MESSAGEUTILS;
     private static AxPlugin instance;
 
-    public static SimpleEntry<Boolean, String> BIE = getPluginInfo(getPlugin("BetterInfinityExpansion"));
-    public static SimpleEntry<Boolean, String> IE = getPluginInfo(getPlugin("InfinityExpansion"));
-    public static SimpleEntry<Boolean, String> FM = getPluginInfo(getPlugin("FluffyMachines"));
-    public static SimpleEntry<Boolean, String> SF = getPluginInfo(getPlugin("Slimefun"));
+    public static boolean IE;
+    public static boolean FM;
 
     public static AxPlugin getInstance() {
         return instance;
@@ -85,30 +82,21 @@ public final class AxSellwands extends AxPlugin {
         UpdateNotifier.init(CONFIG, LANG);
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
-        if (SF.getKey()) {
+        if (isPluginEnabled("slimefun")){
 
-            if (BIE.getKey() && compare(BIE.getValue(), "1.2.3")) {
+            if (isPluginEnabled("BetterInfinityExpansion")) {
                 sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
-            } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")) {
-                // BIE V1.2.3 > does not have StorageUnitAPI
-                sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
-                sendMessage("&2You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
-
-                // override
-                BIE = new SimpleEntry<>(false, BIE.getValue());
-                IE = new SimpleEntry<>(true, IE.getValue());
-            }
-
-            if (IE.getKey()) {
+                IE = true;
+            } else if (IE) {
                 sendMessage("&aInfinityExpansion detected, integration enabled.");
             }
 
-            if (FM.getKey()){
+            if (FM) {
                 sendMessage("&aFluffyMachines detected, integration enabled.");
             }
 
-            if (!BIE.getKey() && !IE.getKey() && !FM.getKey()) {
-                sendMessage("&4No supported plugins detected.");
+            if (!isPluginEnabled("BetterInfinityExpansion") && !IE && !FM){
+                sendMessage("&4No supported plugins detected or enabled.");
                 sendMessage("&4Supported Plugins:");
                 sendMessage("&4 - BetterInfinityExpansion");
                 sendMessage("&4 - InfinityExpansion");
@@ -132,19 +120,12 @@ public final class AxSellwands extends AxPlugin {
         FeatureFlags.LOGGER_NAME_FORMAT.set(LoggerNameFormat.NAMEABLE);
     }
 
-    public static Plugin getPlugin(String plugin){
-        return Bukkit.getPluginManager().getPlugin(plugin);
-    }
 
-    public static SimpleEntry<Boolean, String> getPluginInfo(Plugin p){
-        return new SimpleEntry<>(
-                p != null && CONFIG.getSection("slimefun").getBoolean(p.getName(), true),
-                p == null ? "" : p.getDescription().getVersion()
-        );
-    }
-
-    public static boolean compare(String v1, String v2){
-        return Runtime.Version.parse(v1).compareTo(Runtime.Version.parse(v2)) >= 0;
+    public static boolean isPluginEnabled(String pluginName){
+        Plugin plugin =  Bukkit.getPluginManager().getPlugin(pluginName);
+        return  plugin != null     &&
+                plugin.isEnabled() &&
+                CONFIG.getSection("slimefun").getBoolean(pluginName, true);
     }
 
     public void sendMessage(String msg){

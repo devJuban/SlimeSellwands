@@ -3,6 +3,7 @@ package com.artillexstudios.axsellwands.sellwands;
 import com.artillexstudios.axapi.config.Config;
 import com.artillexstudios.axapi.libs.boostedyaml.block.implementation.Section;
 import com.artillexstudios.axapi.utils.StringUtils;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.StorageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +20,8 @@ public class Sellwand {
     private final Section itemSection;
     private final HashSet<Material> disallowed = new HashSet<>();
     private final HashSet<Material> allowed = new HashSet<>();
+    private final HashSet<StorageType> sfDisallowed = new HashSet<>();
+    private final HashSet<StorageType> sfAllowed = new HashSet<>();
 
     public Sellwand(String id, @NotNull Config file) {
         this.id = id;
@@ -40,7 +43,7 @@ public class Sellwand {
         for (String str : file.getStringList("disallowed-containers")) {
             final Material material = Material.getMaterial(str);
             if (material == null) {
-                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] Material " + str + " does not exists, skipping!"));
+                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] Material " + str + " does not exist, skipping!"));
                 continue;
             }
             disallowed.add(material);
@@ -49,10 +52,32 @@ public class Sellwand {
         for (String str : file.getStringList("allowed-containers")) {
             final Material material = Material.getMaterial(str);
             if (material == null) {
-                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] Material " + str + " does not exists, skipping!"));
+                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] Material " + str + " does not exist, skipping!"));
                 continue;
             }
             allowed.add(material);
+        }
+
+        for (String str : file.getStringList("disallowed-storage")) {
+            StorageType storageType = StorageType.from(str);
+
+            if (storageType == StorageType.NONE){
+                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] StorageType " + str + " does not exist, skipping!"));
+                continue;
+            }
+
+            sfDisallowed.add(storageType);
+        }
+
+        for (String str : file.getStringList("allowed-storage")) {
+            StorageType storageType = StorageType.from(str);
+
+            if (storageType == StorageType.NONE){
+                Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF5500[AxSellwands] StorageType " + str + " does not exist, skipping!"));
+                continue;
+            }
+
+            sfAllowed.add(storageType);
         }
     }
 
@@ -90,5 +115,13 @@ public class Sellwand {
 
     public HashSet<Material> getAllowed() {
         return allowed;
+    }
+
+    public HashSet<StorageType> getSfDisallowed() {
+        return sfDisallowed;
+    }
+
+    public HashSet<StorageType> getSfAllowed() {
+        return sfAllowed;
     }
 }

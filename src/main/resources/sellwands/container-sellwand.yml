@@ -43,3 +43,13 @@ allowed-containers:
 # values: CHEST, TRAPPED_CHEST, ENDER_CHEST, all SHULKER_BOX-es, FURNACE, BLAST_FURNACE, BARREL, HOPPER, SMOKER, DISPENSER, DROPPER
 # containers where you can't use sell wands, don't use both allowed-containers and disallowed-containers at once
 disallowed-containers: []
+
+# list of slimefun storage where sellwands can be used, if empty, selling from all storage is allowed
+# values: UNIT, BARREL
+allowed-storage:
+  - UNIT
+
+# list of slimefun storage where sellwands cannot be used, if empty, selling from all storage is allowed
+# values: UNIT, BARREL
+disallowed-storage:
+  - BARREL

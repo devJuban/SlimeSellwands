@@ -6,6 +6,9 @@ folia-supported: true
 
 softdepend:
   - PlaceholderAPI
-  - BetterInfinityExpansion
-  - FluffyMachines
   - Slimefun
+
+  # Slimefun Storage Addons
+  - BetterInfinityExpansion
+  - InfinityExpansion
+  - FluffyMachines

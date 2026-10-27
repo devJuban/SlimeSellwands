@@ -1,6 +1,6 @@
 package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
-import com.artillexstudios.axsellwands.hooks.StorageHook.StorageHook;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.StorageType;
 import io.ncbpfluffybear.fluffymachines.items.Barrel;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -37,6 +37,11 @@ public class FluffyMachines implements StorageHook {
         }
 
         return new ItemStack(stored.getType(), amount);
+    }
+
+    @Override
+    public StorageType getType(Block b) {
+        return isStorage(b) ? StorageType.BARREL : StorageType.NONE;
     }
 
     @Override

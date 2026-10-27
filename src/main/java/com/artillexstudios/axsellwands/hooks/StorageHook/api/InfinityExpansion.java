@@ -1,6 +1,6 @@
 package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
-import com.artillexstudios.axsellwands.hooks.StorageHook.StorageHook;
+import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.StorageType;
 import io.github.mooy1.infinityexpansion.items.storage.StorageUnit;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
@@ -41,6 +41,11 @@ public class InfinityExpansion implements StorageHook {
         }
 
         return new ItemStack(stored.getType(), amount);
+    }
+
+    @Override
+    public StorageType getType(Block b) {
+        return isStorage(b) ? StorageType.UNIT : StorageType.NONE;
     }
 
     @Override

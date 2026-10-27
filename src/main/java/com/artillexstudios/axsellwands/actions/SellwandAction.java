@@ -191,11 +191,25 @@ public class SellwandAction {
     }
 
     private boolean isAllowed() {
-        // todo: add disallowing from different sellwandss
-        if (sellwand.getDisallowed().contains(block.getType()) || (!sellwand.getAllowed().isEmpty() && !sellwand.getAllowed().contains(block.getType()))) {
-            MESSAGEUTILS.sendLang(player, "disallowed-container");
-            return false;
+
+        StorageType storageType = getType(block);
+
+        if (storageType == StorageType.NONE){
+            if (sellwand.getDisallowed().contains(block.getType()) ||
+                    (!sellwand.getAllowed().isEmpty() && !sellwand.getAllowed().contains(block.getType())))
+            {
+                MESSAGEUTILS.sendLang(player, "disallowed-container");
+                return false;
+            }
+        } else {
+            if (sellwand.getSfDisallowed().contains(storageType) ||
+                    (!sellwand.getSfAllowed().isEmpty() && !sellwand.getSfAllowed().contains(storageType))
+            ){
+                MESSAGEUTILS.sendLang(player, "disallowed-container");
+                return false;
+            }
         }
+
         return true;
     }
 
