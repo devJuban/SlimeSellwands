@@ -36,11 +36,11 @@ public class StorageIntegrationManager {
     public static void setup(){
         StorageHook.clear();
 
-        IE =  isPluginEnabled("InfinityExpansion");
-        FM =  isPluginEnabled("FluffyMachines");
+        IE = isPluginEnabled("InfinityExpansion") || isPluginEnabled("BetterInfinityExpansion");
+        FM = isPluginEnabled("FluffyMachines");
 
-        if (IE)  StorageHook.add(new InfinityExpansion());
-        if (FM)  StorageHook.add(new FluffyMachines());
+        if (IE) StorageHook.add(new InfinityExpansion());
+        if (FM) StorageHook.add(new FluffyMachines());
     }
 
     public static boolean isStorage(Block b){
@@ -53,11 +53,8 @@ public class StorageIntegrationManager {
     }
 
     public static void emptyStorage(Block b){
-        if (!isStorage(b)) return;
-
         for (StorageHook api : getStorageHook()){
             api.emptyStorage(b);
-            return;
         }
     }
 

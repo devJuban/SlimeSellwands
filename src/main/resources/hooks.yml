@@ -10,6 +10,11 @@ hooks:
   price-plugin: "builtin"
   # https://docs.artillex-studios.com/integrations.html#protection
   protection-plugins:
+  # which storage plugins should we use (does not work, planned for future)
+  storage-plugins:
+    BetterInfinityExpansion: true
+    InfinityExpansion: true
+    FluffyMachines: true
 
 hook-settings:
 

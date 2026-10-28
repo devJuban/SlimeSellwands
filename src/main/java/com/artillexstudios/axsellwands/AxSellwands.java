@@ -86,7 +86,6 @@ public final class AxSellwands extends AxPlugin {
 
             if (isPluginEnabled("BetterInfinityExpansion")) {
                 sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
-                IE = true;
             } else if (IE) {
                 sendMessage("&aInfinityExpansion detected, integration enabled.");
             }
