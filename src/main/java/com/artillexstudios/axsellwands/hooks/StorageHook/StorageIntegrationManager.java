@@ -5,6 +5,7 @@ import com.artillexstudios.axsellwands.hooks.StorageHook.api.InfinityExpansion;
 import com.artillexstudios.axsellwands.hooks.StorageHook.api.StorageHook;
 import me.mrCookieSlime.Slimefun.api.BlockStorage;
 import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +45,6 @@ public class StorageIntegrationManager {
     }
 
     public static boolean isStorage(Block b){
-
         for (StorageHook api : getStorageHook()){
             if (api.isStorage(b)) return true;
         }
@@ -82,6 +82,11 @@ public class StorageIntegrationManager {
     @Nullable
     public static BlockMenu getBlockMenu(Block b){
         return BlockStorage.getInventory(b);
+    }
+
+    @Nullable
+    public static BlockMenu getBlockMenu(Location l){
+        return BlockStorage.getInventory(l);
     }
 
     public static List<StorageHook> getStorageHook(){

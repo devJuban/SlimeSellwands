@@ -16,6 +16,7 @@ import com.artillexstudios.axsellwands.hooks.HookManager;
 import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager;
 import com.artillexstudios.axsellwands.listeners.CraftListener;
 import com.artillexstudios.axsellwands.listeners.InventoryClickListener;
+import com.artillexstudios.axsellwands.listeners.PlayerRightClickListener;
 import com.artillexstudios.axsellwands.listeners.SellwandUseListener;
 import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.FileUtils;
@@ -85,6 +86,8 @@ public final class AxSellwands extends AxPlugin {
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
         if (isPluginEnabled("slimefun")){
+
+            getServer().getPluginManager().registerEvents(new PlayerRightClickListener(), this);
 
             if (isPluginEnabled("BetterInfinityExpansion")) {
                 sendMessage("&aBetterInfinityExpansion detected, integration enabled.");

@@ -93,9 +93,8 @@ public class SellwandAction {
         if (actions.contains(ActionType.SELL)) {
             if (isStorage(block)){
                 BlockMenu blockMenu = getBlockMenu(block);
-                if (blockMenu == null) return;
-                
-                if (blockMenu.hasViewer()){
+
+                if (blockMenu != null && blockMenu.hasViewer()){
                     MESSAGEUTILS.sendLang(player, "block-has-viewer");
                     return;
                 }
@@ -321,7 +320,7 @@ public class SellwandAction {
     }
 
     private void updateContainer() {
-        emptyStorage(block); // todo: something
+        emptyStorage(block);
         if (!(block.getState() instanceof Container container)) return;
         container.update();
     }

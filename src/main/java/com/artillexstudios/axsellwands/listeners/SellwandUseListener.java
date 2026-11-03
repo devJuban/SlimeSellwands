@@ -2,37 +2,22 @@ package com.artillexstudios.axsellwands.listeners;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.utils.*;
-import com.artillexstudios.axintegrations.types.ContainerIntegration;
-import com.artillexstudios.axintegrations.types.CurrencyIntegration;
-import com.artillexstudios.axintegrations.types.ProtectionIntegration;
-import com.artillexstudios.axintegrations.types.ShopIntegration;
+import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axsellwands.AxSellwands;
 import com.artillexstudios.axsellwands.actions.ClickType;
 import com.artillexstudios.axsellwands.actions.SellwandAction;
-import com.artillexstudios.axsellwands.api.events.AxSellwandsSellEvent;
 import com.artillexstudios.axsellwands.sellwands.Sellwand;
 import com.artillexstudios.axsellwands.sellwands.Sellwands;
-import com.artillexstudios.axsellwands.utils.HistoryUtils;
-import com.artillexstudios.axsellwands.utils.HologramUtils;
-import com.artillexstudios.axsellwands.utils.NumberUtils;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.EventExecutor;
-import org.jetbrains.annotations.NotNull;
-import java.util.*;
 
-import static com.artillexstudios.axsellwands.AxSellwands.*;
-import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.*;
+import static com.artillexstudios.axsellwands.AxSellwands.CONFIG;
 
 public class SellwandUseListener implements Listener {
 
@@ -64,8 +49,7 @@ public class SellwandUseListener implements Listener {
         );
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onInteract(@NotNull PlayerInteractEvent event) {
+    public void onInteract(PlayerInteractEvent event) {
         ItemStack item = event.getItem();
         if (item == null) return;
         Block block = event.getClickedBlock();
