@@ -1,12 +1,13 @@
 package com.artillexstudios.axsellwands;
 
+import java.io.File;
+import java.util.AbstractMap.SimpleEntry;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.config.Config;
-import com.artillexstudios.axapi.libs.boostedyaml.dvs.versioning.BasicVersioning;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.dumper.DumperSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.general.GeneralSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.loader.LoaderSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.updater.UpdaterSettings;
 import com.artillexstudios.axapi.utils.MessageUtils;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -21,11 +22,6 @@ import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.FileUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
 import com.artillexstudios.axsellwands.utils.UpdateNotifier;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-
-import java.io.File;
-import java.util.AbstractMap.SimpleEntry;
 
 public final class AxSellwands extends AxPlugin {
     public static Config CONFIG;
@@ -60,11 +56,13 @@ public final class AxSellwands extends AxPlugin {
     public void enable() {
         instance = this;
 
-        CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
-        LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
-        HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
+        refreshPluginInfo();
 
-        MESSAGEUTILS = new MessageUtils(LANG.getBackingDocument(), "prefix", CONFIG.getBackingDocument());
+        CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"));
+        LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"));
+        HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"));
+
+        MESSAGEUTILS = new MessageUtils(LANG, CONFIG);
 
         HookManager.setup();
         StorageIntegrationManager.setup();
@@ -85,34 +83,7 @@ public final class AxSellwands extends AxPlugin {
         UpdateNotifier.init(CONFIG, LANG);
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
-        if (CONFIG.getBoolean("slimefun-integration", false) && SF.getKey()) {
-
-           if (BIE.getKey() && compare(BIE.getValue(), "1.2.3")){
-               sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
-           } else if (BIE.getKey() && !compare(BIE.getValue(), "1.2.3")){
-               sendMessage("&2BetterInfinityExpansion detected but is lower than v1.2.3, using InfinityExpansion methods.");
-               sendMessage("&2You can safely ignore this message, but is always recommended to use V1.2.3 or higher.");
-
-               BIE = new SimpleEntry<>(false, BIE.getValue());
-               IE = new SimpleEntry<>(true, IE.getValue());
-           } else if (IE.getKey()) {
-               sendMessage("&aInfinityExpansion detected, integration enabled.");
-           }
-
-           if (FM.getKey()){
-               sendMessage("&aFluffyMachines detected, integration enabled.");
-           }
-
-           if (!BIE.getKey() && !IE.getKey() && !FM.getKey()){
-                sendMessage("&4No supported plugins detected.");
-                sendMessage("&4Supported Plugins:");
-                sendMessage("&4 - BetterInfinityExpansion");
-                sendMessage("&4 - InfinityExpansion");
-                sendMessage("&4 - FluffyMachines");
-            }
-        } else {
-            sendMessage("&4Slimefun not found or disabled!");
-        }
+        reportDependencies(Bukkit.getConsoleSender());
     }
 
     @Override
@@ -131,6 +102,56 @@ public final class AxSellwands extends AxPlugin {
         return Bukkit.getPluginManager().getPlugin(plugin);
     }
 
+    private static void refreshPluginInfo() {
+        BIE = getPluginInfo(getPlugin("BetterInfinityExpansion"));
+        IE = getPluginInfo(getPlugin("InfinityExpansion"));
+        FM = getPluginInfo(getPlugin("FluffyMachines"));
+        SF = getPluginInfo(getPlugin("Slimefun"));
+    }
+
+    public void reportDependencies(org.bukkit.command.CommandSender sender) {
+        refreshPluginInfo();
+        boolean slimefunEnabled = CONFIG.getBoolean("slimefun-integration", true);
+        if (slimefunEnabled && !SF.getKey()) {
+            dependencyMessage(sender, "&cMissing required dependency: Slimefun. Slimefun integration is disabled until it is installed.");
+        } else if (!slimefunEnabled) {
+            dependencyMessage(sender, "&eSlimefun integration is disabled in config.yml.");
+        } else {
+            dependencyMessage(sender, "&aDependency found: Slimefun " + SF.getValue());
+        }
+
+        String economy = HOOKS.getString("hooks.economy-plugin", "Vault");
+        if ("builtin".equalsIgnoreCase(economy)) {
+            dependencyMessage(sender, "&aEconomy: built-in prices selected; Vault is not required for price lookup.");
+        } else if (!hasPlugin(economy)) {
+            dependencyMessage(sender, "&cMissing required dependency: " + economy + " (configured economy provider).");
+        } else {
+            dependencyMessage(sender, "&aDependency found: " + economy);
+        }
+
+        reportOptional(sender, "PlaceholderAPI");
+        reportOptional(sender, "WorldGuard");
+        reportOptional(sender, "BetterInfinityExpansion");
+        reportOptional(sender, "InfinityExpansion");
+        reportOptional(sender, "FluffyMachines");
+        if (slimefunEnabled && SF.getKey() && !BIE.getKey() && !IE.getKey() && !FM.getKey()) {
+            dependencyMessage(sender, "&eNo named storage expansion detected. Generic Slimefun storage APIs will still be checked.");
+        }
+    }
+
+    private void reportOptional(org.bukkit.command.CommandSender sender, String name) {
+        dependencyMessage(sender, (hasPlugin(name) ? "&aOptional dependency found: " : "&7Optional dependency missing: ") + name);
+    }
+
+    private void dependencyMessage(org.bukkit.command.CommandSender sender, String message) {
+        sender.sendMessage(StringUtils.formatToString("&a[" + getName() + "] " + message));
+    }
+
+    private static boolean hasPlugin(String name) {
+        Plugin plugin = getPlugin(name);
+        return plugin != null && plugin.isEnabled();
+    }
+
     public static SimpleEntry<Boolean, String> getPluginInfo(Plugin p){
         return new SimpleEntry<>(
                 p != null,// && p.isEnabled(),
@@ -139,7 +160,14 @@ public final class AxSellwands extends AxPlugin {
     }
 
     public static boolean compare(String v1, String v2){
-        return Runtime.Version.parse(v1).compareTo(Runtime.Version.parse(v2)) >= 0;
+        String[] left = v1.split("\\.");
+        String[] right = v2.split("\\.");
+        for (int i = 0; i < Math.max(left.length, right.length); i++) {
+            int a = i < left.length ? Integer.parseInt(left[i]) : 0;
+            int b = i < right.length ? Integer.parseInt(right[i]) : 0;
+            if (a != b) return a > b;
+        }
+        return true;
     }
 
     public void sendMessage(String msg){

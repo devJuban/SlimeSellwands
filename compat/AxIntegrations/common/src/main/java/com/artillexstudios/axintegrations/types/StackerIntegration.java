@@ -1,0 +1,82 @@
+package com.artillexstudios.axintegrations.types;
+
+import com.artillexstudios.axintegrations.Integration;
+import com.artillexstudios.axintegrations.IntegrationManager;
+import com.artillexstudios.axintegrations.IntegrationType;
+import org.bukkit.block.Block;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import java.util.List;
+
+/**
+ * Rules
+ * - if the stacker plugin doesn't support something, return false for isStacked and return null for the stack size
+ * - the getMaxStackSize should return null if there is no stack limit (BigInteger/BigDecimal) - otherwise return actual max value, like Integer.MAX_VALUE
+ */
+public abstract class StackerIntegration extends Integration {
+
+    /**
+     * returns all loaded integrations
+     */
+    public static List<StackerIntegration> list() {
+        return IntegrationManager.getIntegrations(StackerIntegration.class);
+    }
+
+    /**
+     * returns a loaded integration
+     * if you register multiple, you should use {@link this#list()} instead
+     */
+        public static StackerIntegration one() {
+        return list().stream().findFirst().orElse(null);
+    }
+
+    /**
+     * returns a loaded integration by name
+     */
+        public static StackerIntegration one(String name) {
+        return list().stream().filter(i -> {
+            return i.getName().equalsIgnoreCase(name) || i.getFormattedName().equalsIgnoreCase(name);
+        }).findFirst().orElse(null);
+    }
+
+    public StackerIntegration(String name) {
+        super(name, IntegrationType.STACKER);
+    }
+
+    // item stacker
+    public abstract boolean isStacked(Item item);
+
+        public abstract Number getStackSize(Item item);
+
+        public abstract Number getMaxStackSize(Item item);
+
+    public abstract boolean setStackSize(Item item, Number amount);
+
+    // entity stacker
+    public abstract boolean isStacked(LivingEntity entity);
+
+        public abstract Number getStackSize(LivingEntity entity);
+
+        public abstract Number getMaxStackSize(LivingEntity entity);
+
+    public abstract boolean setStackSize(LivingEntity entity, Number amount);
+
+    // spawner stacker
+    public abstract boolean isStacked(CreatureSpawner spawner);
+
+        public abstract Number getStackSize(CreatureSpawner spawner);
+
+        public abstract Number getMaxStackSize(CreatureSpawner spawner);
+
+    public abstract boolean setStackSize(CreatureSpawner spawner, Number amount);
+
+    // block stacker
+    public abstract boolean isStacked(Block block);
+
+        public abstract Number getStackSize(Block block);
+
+        public abstract Number getMaxStackSize(Block block);
+
+    public abstract boolean setStackSize(Block block, Number amount);
+}

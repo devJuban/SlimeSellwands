@@ -25,10 +25,10 @@ public class HistoryUtils {
 
     public static void writeToHistory(String text) {
         ZonedDateTime now = ZonedDateTime.now();
-        Path logFile = logsDir.resolve("%s.log".formatted(now.format(FILE_FORMAT)));
-        String line = "[%s] %s%s".formatted(now.format(TIME_FORMAT), text, System.lineSeparator());
+        Path logFile = logsDir.resolve(String.format("%s.log", now.format(FILE_FORMAT)));
+        String line = String.format("[%s] %s%s", now.format(TIME_FORMAT), text, System.lineSeparator());
         try {
-            Files.writeString(logFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Files.write(logFile, line.getBytes(java.nio.charset.StandardCharsets.UTF_8), StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException ex) {
             ex.printStackTrace();
         }

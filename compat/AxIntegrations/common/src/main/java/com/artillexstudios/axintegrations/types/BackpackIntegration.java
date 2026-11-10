@@ -1,0 +1,46 @@
+package com.artillexstudios.axintegrations.types;
+
+import com.artillexstudios.axintegrations.Integration;
+import com.artillexstudios.axintegrations.IntegrationManager;
+import com.artillexstudios.axintegrations.IntegrationType;
+import org.bukkit.inventory.ItemStack;
+import java.util.List;
+
+/**
+ * Rules
+ * - getContents must return the real contents in a modifiable list
+ */
+public abstract class BackpackIntegration extends Integration {
+
+    /**
+     * returns all loaded integrations
+     */
+    public static List<BackpackIntegration> list() {
+        return IntegrationManager.getIntegrations(BackpackIntegration.class);
+    }
+
+    /**
+     * returns a loaded integration
+     * if you register multiple, you should use {@link this#list()} instead
+     */
+        public static BackpackIntegration one() {
+        return list().stream().findFirst().orElse(null);
+    }
+
+    /**
+     * returns a loaded integration by name
+     */
+        public static BackpackIntegration one(String name) {
+        return list().stream().filter(i -> {
+            return i.getName().equalsIgnoreCase(name) || i.getFormattedName().equalsIgnoreCase(name);
+        }).findFirst().orElse(null);
+    }
+
+    public BackpackIntegration(String name) {
+        super(name, IntegrationType.BACKPACK);
+    }
+
+    public abstract boolean isBackpack(ItemStack item);
+
+        public abstract List<ItemStack> getContents(ItemStack item);
+}

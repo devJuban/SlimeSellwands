@@ -1,0 +1,37 @@
+package com.artillexstudios.axapi.database.impl;
+
+import com.artillexstudios.axapi.database.DatabaseConfig;
+import com.artillexstudios.axapi.database.DatabaseType;
+import com.artillexstudios.axapi.utils.file.FileUtils;
+import com.zaxxer.hikari.HikariConfig;
+
+import java.util.List;
+import java.util.UUID;
+
+public class SQLiteDatabaseType extends DatabaseType {
+    private final String relocated;
+
+    public SQLiteDatabaseType() {
+        this("org.sqlite");
+    }
+
+    public SQLiteDatabaseType(String relocated) {
+        this.relocated = relocated;
+        this.registerTransformer(UUID.class, uuid -> java.util.Collections.singletonList(uuid.toString()));
+    }
+
+    @Override
+    public HikariConfig config(DatabaseConfig databaseConfig) {
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName(this.relocated + ".JDBC");
+        config.setJdbcUrl(databaseConfig.url == null ? "jdbc:sqlite:" + FileUtils.getInstance().getFolder() + "/data" : databaseConfig.url);
+        config.setMaximumPoolSize(databaseConfig.pool.maximumPoolSize);
+        config.setMinimumIdle(databaseConfig.pool.minimumIdle);
+        return config;
+    }
+
+    @Override
+    public String name() {
+        return "sqlite";
+    }
+}

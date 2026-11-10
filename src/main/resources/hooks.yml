@@ -10,6 +10,8 @@ hooks:
   price-plugin: "builtin"
   # https://docs.artillex-studios.com/integrations.html#protection
   protection-plugins:
+    # WorldGuard checks are enabled automatically when WorldGuard is installed.
+    WorldGuard: true
 
 hook-settings:
 

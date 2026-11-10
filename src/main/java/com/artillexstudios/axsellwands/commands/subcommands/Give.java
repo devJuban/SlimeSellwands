@@ -51,7 +51,7 @@ public enum Give {
         for (int i = 0; i < am; i++) {
             if (CONFIG.getInt("stacking-mode", 0) != 2) wrapper.set("axsellwands-uuid", UUID.randomUUID());
             wrapper.build();
-            ContainerUtils.INSTANCE.addOrDrop(player.getInventory(), List.of(it.clone()), player.getLocation());
+            ContainerUtils.INSTANCE.addOrDrop(player.getInventory(), java.util.Collections.singletonList(it.clone()), player.getLocation());
         }
 
         replacements.put("%amount%", "" + am);

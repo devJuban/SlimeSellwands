@@ -1,0 +1,52 @@
+package com.artillexstudios.axintegrations.types;
+
+import com.artillexstudios.axintegrations.Integration;
+import com.artillexstudios.axintegrations.IntegrationManager;
+import com.artillexstudios.axintegrations.IntegrationType;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * Rules
+ * - if the balance can't be retrieved, return 0
+ * - if {@link this#worksOffline()} is false but an offline player is queried or not found, return false or 0 with {@link CompletableFuture}
+ */
+public abstract class BankIntegration extends Integration {
+
+    /**
+     * returns all loaded integrations
+     */
+    public static List<BankIntegration> list() {
+        return IntegrationManager.getIntegrations(BankIntegration.class);
+    }
+
+    /**
+     * returns a loaded integration
+     * if you register multiple, you should use {@link this#list()} instead
+     */
+        public static BankIntegration one() {
+        return list().stream().findFirst().orElse(null);
+    }
+
+    /**
+     * returns a loaded integration by name
+     */
+        public static BankIntegration one(String name) {
+        return list().stream().filter(i -> {
+            return i.getName().equalsIgnoreCase(name) || i.getFormattedName().equalsIgnoreCase(name);
+        }).findFirst().orElse(null);
+    }
+
+    public BankIntegration(String name) {
+        super(name, IntegrationType.BANK);
+    }
+
+    public abstract boolean worksOffline();
+
+        public abstract CompletableFuture<Number> getBalance(UUID playerUUID);
+
+    public abstract CompletableFuture<Boolean> deposit(UUID playerUUID, Number amount);
+
+    public abstract CompletableFuture<Boolean> withdraw(UUID playerUUID, Number amount);
+}
