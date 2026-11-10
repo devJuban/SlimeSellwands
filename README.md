@@ -51,4 +51,5 @@ The separate compatibility artifacts can be built from their directories:
 
 # Credits
 [@Artillex-Studios](https://github.com/Artillex-Studios/) - providing AxSellwand
+
 [@devJuban](https://github.com/devJuban/SlimeSellwands) - Making the main part of the plugin
