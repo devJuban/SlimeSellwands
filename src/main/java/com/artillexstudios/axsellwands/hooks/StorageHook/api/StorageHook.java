@@ -8,8 +8,11 @@ import org.jetbrains.annotations.Nullable;
 public interface StorageHook {
 
     boolean isStorage(Block b);
-    @Nullable
-    ItemStack getContents(Block b);
+    @Nullable ItemStack getContents(Block b);
     StorageType getType(Block b);
     void emptyStorage(Block b);
+
+    default boolean isSimilar(ItemStack item, ItemStack other) {
+        return item != null && item.getType() == other.getType();
+    }
 }

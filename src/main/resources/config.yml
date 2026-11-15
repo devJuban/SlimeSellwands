@@ -11,6 +11,8 @@ stacking-mode: 1
 
 # Slimefun integration
 slimefun:
+  slimefun: true
+
   BetterInfinityExpansion: true
   InfinityExpansion: true
   FluffyMachines: true

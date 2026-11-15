@@ -9,19 +9,20 @@ and FluffyMachines are currently supported.
   - [InfinityExpansion (Latest)](https://github.com/Riley31415/InfinityExpansion)
   - [FluffyMachines (Latest)](https://github.com/NCBPFluffyBear/FluffyMachines)
  
-# Changes (outdated... to be updated soon)
+# Changes
 
-| File Changed                  | Changed                          |
+| File Changed                  | Reason/Changed                   |
 |-------------------------------|----------------------------------|
 | `./AxSellwands`               | Added Informative Messages       |
 | `./pom.xml`                   | Added dependencies               |
 | `./lang.yml`                  | Added `block-has-viewer`         |
 | `./config.yml`                | Added `slimefun-integration`     |
 | `./plugin.yml`                | Added soft depenecies            |
-| `./SellwandUseListener`       | Added compatibilty with Slimefun |
+| `./SellwandAction`            | Added compatibilty with Slimefun |
+| `./PlayerRightClickListener`  | Fix for #1                       |
 | `./FluffyMachines`            | Hook for FluffyMachines          |
 | `./InfinityExpansion`         | Hook for InfinityExpansion       |
-| `./StorageHook`               | Blueprint for API                |
+| `./StorageHook`               | Interface for Storage API        |
 | `./StorageIntegrationManager` | StorageHook manager              |
 
 # Credits

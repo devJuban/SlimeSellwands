@@ -177,12 +177,12 @@ public class SellwandAction {
             return true;
         }
 
-        if (block.getState() instanceof Container) {
+        if (isStorage(block)) {
+            contents = new ItemStack[]{StorageIntegrationManager.getContents(block)};
+        } else if (block.getState() instanceof Container) {
             contents = ((Container) block.getState()).getInventory().getContents();
         } else if (block.getType() == Material.ENDER_CHEST) {
             contents = player.getEnderChest().getContents();
-        } else if (isStorage(block)) {
-            contents = new ItemStack[]{StorageIntegrationManager.getContents(block)};
         } else {
             return false;
         }

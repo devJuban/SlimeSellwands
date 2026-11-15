@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.*;
 
-// try to merge this into SellwandUseListener if possible :) (prob not tho)
 public class PlayerRightClickListener implements Listener {
 
     @EventHandler

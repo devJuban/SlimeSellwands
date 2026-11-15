@@ -124,16 +124,19 @@ public final class AxSellwands extends AxPlugin {
         FeatureFlags.LOGGER_NAME_FORMAT.set(LoggerNameFormat.NAMEABLE);
     }
 
+    public static boolean isPluginEnabled(String pluginName) {
+        return isPluginEnabled(pluginName, true);
+    }
 
-    public static boolean isPluginEnabled(String pluginName){
+    public static boolean isPluginEnabled(String pluginName, boolean def){
         Plugin plugin =  Bukkit.getPluginManager().getPlugin(pluginName);
         return  plugin != null     &&
                 plugin.isEnabled() &&
-                CONFIG.getSection("slimefun").getBoolean(pluginName, true);
+                CONFIG.getSection("slimefun").getBoolean(pluginName, def);
     }
 
-    public void sendMessage(String msg){
-        String prefix = "&a[" + this.getName() + "] ";
+    public static void sendMessage(String msg){
+        String prefix = "&a[" + getInstance().getName() + "] ";
         Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString(prefix + msg));
     }
 

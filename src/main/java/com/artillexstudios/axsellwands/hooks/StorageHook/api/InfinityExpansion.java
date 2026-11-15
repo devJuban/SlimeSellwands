@@ -12,10 +12,10 @@ import org.bukkit.block.data.type.WallSign;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleEntry;
 
+import static com.artillexstudios.axsellwands.AxSellwands.sendMessage;
 import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getBlockMenu;
 
 public class InfinityExpansion implements StorageHook {
@@ -40,7 +40,7 @@ public class InfinityExpansion implements StorageHook {
 
         for (int slot : OUTPUT_SLOTS){
             ItemStack item = menu.getItemInSlot(slot);
-            if (item != null && item.getType() == stored.getType()){
+            if (isSimilar(item, stored)) {
                 amount += item.getAmount();
             }
         }
@@ -69,8 +69,17 @@ public class InfinityExpansion implements StorageHook {
             setEmptyMethod.setAccessible(true);
 
             setEmptyMethod.invoke(cache);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
+        } catch (Exception exception) {
+            sendMessage("&4Failed to find method \"setEmpty\" (using legacy method)." +
+                    " Try to download a newer version of InfinityExpansion.");
+
             BlockStorage.addBlockInfo(location, "stored", "0");
+
+            // remove the output slot and then line 85 will remove the excess
+            // this method should work the same as setEmpty?
+            for (int slot : OUTPUT_SLOTS){
+                menu.replaceExistingItem(slot, null);
+            }
         }
 
         for (int slot : OUTPUT_SLOTS){
