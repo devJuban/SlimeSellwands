@@ -10,22 +10,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.nio.file.StandardCopyOption;
 
 public class FileUtils {
-    public static final Path PLUGIN_DIRECTORY = com.artillexstudios.axapi.utils.file.FileUtils.getInstance().getFolder().toPath();
+    public static final Path PLUGIN_DIRECTORY = AxSellwands.getInstance().getDataFolder().toPath();
 
     public static void copyFromResource(@NotNull String path) {
         try (ZipFile zip = new ZipFile(Paths.get(AxSellwands.getInstance().getClass().getProtectionDomain().getCodeSource().getLocation().toURI()).toFile())) {
-            for (Iterator<? extends ZipEntry> it = zip.entries().asIterator(); it.hasNext(); ) {
-                ZipEntry entry = it.next();
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
                 if (entry.getName().startsWith(path + "/")) {
                     if (!entry.getName().endsWith(".yaml") && !entry.getName().endsWith(".yml")) continue;
                     InputStream resource = AxSellwands.getInstance().getResource(entry.getName());
                     if (resource == null)   continue;
-
-                    Files.copy(resource, PLUGIN_DIRECTORY.resolve(entry.getName()));
+                    Path target = PLUGIN_DIRECTORY.resolve(entry.getName());
+                    Files.createDirectories(target.getParent());
+                    if (Files.exists(target)) continue;
+                    try (InputStream stream = resource) {
+                        Files.copy(stream, target, StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             }
         } catch (IOException | URISyntaxException ex) {

@@ -17,6 +17,8 @@ slimefun:
   InfinityExpansion: true
   FluffyMachines: true
 
+  GenericSlimefunStorage: false
+
 # if true: when merging two sell wands, their usage limit can go over the limit
 allow-going-over-limit: false
 

@@ -1,14 +1,26 @@
 name: SlimeSellwands
 version: '${project.version}'
 main: com.artillexstudios.axsellwands.AxSellwands
-api-version: '1.20'
-folia-supported: true
+
+commands:
+  axsellwands:
+    description: AxSellwands administration
+    aliases: [axsellwand, sellwands, sellwand]
+    permission: axsellwands.admin
+    usage: /axsellwands <help|give|reload|status>
+
+permissions:
+  axsellwands.admin:
+    description: Manage AxSellwands and give sellwands
+    default: op
 
 softdepend:
   - PlaceholderAPI
   - Slimefun
+  - Vault
+  - WorldGuard
 
-  # Slimefun Storage Addons
+  # Slimefun addons
   - BetterInfinityExpansion
   - InfinityExpansion
   - FluffyMachines

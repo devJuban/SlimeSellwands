@@ -1,12 +1,13 @@
 package com.artillexstudios.axsellwands;
 
+import java.io.File;
+import java.util.AbstractMap.SimpleEntry;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+
 import com.artillexstudios.axapi.AxPlugin;
 import com.artillexstudios.axapi.config.Config;
-import com.artillexstudios.axapi.libs.boostedyaml.dvs.versioning.BasicVersioning;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.dumper.DumperSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.general.GeneralSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.loader.LoaderSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.updater.UpdaterSettings;
 import com.artillexstudios.axapi.utils.MessageUtils;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.featureflags.FeatureFlags;
@@ -16,17 +17,11 @@ import com.artillexstudios.axsellwands.hooks.HookManager;
 import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager;
 import com.artillexstudios.axsellwands.listeners.CraftListener;
 import com.artillexstudios.axsellwands.listeners.InventoryClickListener;
-import com.artillexstudios.axsellwands.listeners.PlayerRightClickListener;
 import com.artillexstudios.axsellwands.listeners.SellwandUseListener;
 import com.artillexstudios.axsellwands.sellwands.Sellwands;
 import com.artillexstudios.axsellwands.utils.FileUtils;
-import com.artillexstudios.axsellwands.utils.HistoryUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
 import com.artillexstudios.axsellwands.utils.UpdateNotifier;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-
-import java.io.File;
 
 public final class AxSellwands extends AxPlugin {
     public static Config CONFIG;
@@ -37,6 +32,8 @@ public final class AxSellwands extends AxPlugin {
 
     public static boolean IE;
     public static boolean FM;
+
+    public static boolean GR;
 
     public static AxPlugin getInstance() {
         return instance;
@@ -59,13 +56,12 @@ public final class AxSellwands extends AxPlugin {
     public void enable() {
         instance = this;
 
-        CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
-        LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
-        HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().setAutoUpdate(true).build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).setVersioning(new BasicVersioning("version")).build());
+        CONFIG = new Config(new File(getDataFolder(), "config.yml"), getResource("config.yml"));
+        LANG = new Config(new File(getDataFolder(), "lang.yml"), getResource("lang.yml"));
+        HOOKS = new Config(new File(getDataFolder(), "hooks.yml"), getResource("hooks.yml"));
 
-        MESSAGEUTILS = new MessageUtils(LANG.getBackingDocument(), "prefix", CONFIG.getBackingDocument());
+        MESSAGEUTILS = new MessageUtils(LANG, CONFIG);
 
-        HistoryUtils.reload();
         HookManager.setup();
         StorageIntegrationManager.setup();
         NumberUtils.reload();
@@ -85,31 +81,7 @@ public final class AxSellwands extends AxPlugin {
         UpdateNotifier.init(CONFIG, LANG);
         if (CONFIG.getBoolean("update-notifier.enabled", true)) new UpdateNotifier();
 
-        if (isPluginEnabled("slimefun")){
-
-            getServer().getPluginManager().registerEvents(new PlayerRightClickListener(), this);
-
-            if (isPluginEnabled("BetterInfinityExpansion")) {
-                sendMessage("&aBetterInfinityExpansion detected, integration enabled.");
-            } else if (IE) {
-                sendMessage("&aInfinityExpansion detected, integration enabled.");
-            }
-
-            if (FM) {
-                sendMessage("&aFluffyMachines detected, integration enabled.");
-            }
-
-            if (!isPluginEnabled("BetterInfinityExpansion") && !IE && !FM){
-                sendMessage("&4No supported plugins detected or enabled.");
-                sendMessage("&4Supported Plugins:");
-                sendMessage("&4 - BetterInfinityExpansion");
-                sendMessage("&4 - InfinityExpansion");
-                sendMessage("&4 - FluffyMachines");
-            }
-
-        } else {
-            sendMessage("&4Slimefun not found or disabled!");
-        }
+        reportDependencies(Bukkit.getConsoleSender());
     }
 
     @Override
@@ -122,6 +94,73 @@ public final class AxSellwands extends AxPlugin {
         FeatureFlags.HOLOGRAM_UPDATE_TICKS.set(20L);
         FeatureFlags.PACKET_ENTITY_TRACKER_THREADS.set(1);
         FeatureFlags.LOGGER_NAME_FORMAT.set(LoggerNameFormat.NAMEABLE);
+    }
+
+    public static Plugin getPlugin(String plugin){
+        return Bukkit.getPluginManager().getPlugin(plugin);
+    }
+
+    public static void refreshPluginInfo() {
+        IE = isPluginEnabled("InfinityExpansion") ||
+            isPluginEnabled("BetterInfinityExpansion");
+        FM = isPluginEnabled("FluffyMachines");
+        GR = CONFIG.getBoolean("GenericSlimefunStorage", false);
+    }
+
+    // requires rewrite
+    public void reportDependencies(org.bukkit.command.CommandSender sender) {
+        refreshPluginInfo();
+        boolean slimefunEnabled = CONFIG.getBoolean("slimefun-integration", true);
+
+//        if (slimefunEnabled && !SF.getKey()) {
+//            dependencyMessage(sender, "&cMissing required dependency: Slimefun. Slimefun integration is disabled until it is installed.");
+//        } else if (!slimefunEnabled) {
+//            dependencyMessage(sender, "&eSlimefun integration is disabled in config.yml.");
+//        } else {
+//            dependencyMessage(sender, "&aDependency found: Slimefun " + SF.getValue());
+//        }
+
+        boolean SF = isPluginEnabled("slimefun");
+
+        if (SF) {
+
+        } else {
+
+        }
+
+
+        String economy = HOOKS.getString("hooks.economy-plugin", "Vault");
+        if ("builtin".equalsIgnoreCase(economy)) {
+            dependencyMessage(sender, "&aEconomy: built-in prices selected; Vault is not required for price lookup.");
+        } else if (!hasPlugin(economy)) {
+            dependencyMessage(sender, "&cMissing required dependency: " + economy + " (configured economy provider).");
+        } else {
+            dependencyMessage(sender, "&aDependency found: " + economy);
+        }
+
+        reportOptional(sender, "PlaceholderAPI");
+        reportOptional(sender, "WorldGuard");
+
+        reportOptional(sender, "BetterInfinityExpansion");
+        reportOptional(sender, "InfinityExpansion");
+        reportOptional(sender, "FluffyMachines");
+
+        if (StorageIntegrationManager.getStorageHook().isEmpty()) {
+            dependencyMessage(sender, "&eNo named storage expansion detected.");
+        }
+    }
+
+    private void reportOptional(org.bukkit.command.CommandSender sender, String name) {
+        dependencyMessage(sender, (hasPlugin(name) ? "&aOptional dependency found: " : "&7Optional dependency missing: ") + name);
+    }
+
+    private void dependencyMessage(org.bukkit.command.CommandSender sender, String message) {
+        sender.sendMessage(StringUtils.formatToString("&a[" + getName() + "] " + message));
+    }
+
+    private static boolean hasPlugin(String name) {
+        Plugin plugin = getPlugin(name);
+        return plugin != null && plugin.isEnabled();
     }
 
     public static boolean isPluginEnabled(String pluginName) {
@@ -139,5 +178,4 @@ public final class AxSellwands extends AxPlugin {
         String prefix = "&a[" + getInstance().getName() + "] ";
         Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString(prefix + msg));
     }
-
 }

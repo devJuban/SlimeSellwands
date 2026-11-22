@@ -1,14 +1,16 @@
 package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
 import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.StorageType;
-import io.ncbpfluffybear.fluffymachines.items.Barrel;
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import com.artillexstudios.axsellwands.utils.slimefun.BlockMenu;
+import com.artillexstudios.axsellwands.utils.slimefun.BlockStorage;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Method;
+
 import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getBlockMenu;
+import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getSlimefunItem;
 
 public class FluffyMachines implements StorageHook {
 
@@ -16,7 +18,7 @@ public class FluffyMachines implements StorageHook {
 
     @Override
     public boolean isStorage(Block b) {
-        return BlockStorage.check(b) instanceof Barrel;
+        return getBarrel(b) != null;
     }
 
     @Override
@@ -61,7 +63,50 @@ public class FluffyMachines implements StorageHook {
 
     @Nullable
     private Barrel getBarrel(Block b){
-        if (!isStorage(b)) return null;
+        Object slimefunItem = getSlimefunItem(b);
+
         return (Barrel) BlockStorage.check(b);
+    }
+
+    // reimpl the barrel class
+    public static class Barrel {
+
+        Object barrel;
+
+        public Barrel(Object barrel) {
+            this.barrel = barrel;
+        }
+
+        public int getStored(Block block) {
+            Object amount = invoke("getStored", block);
+            return amount == null ? 0 : (int) amount;
+        }
+
+        public ItemStack getStoredItem(Block block) {
+            return (ItemStack) invoke("getStoredItem", block);
+        }
+
+        public void setStored(Block block, int amount) {
+            invoke("setStored", block, amount);
+        }
+
+        public void updateHologram(Block block, String top, String bottom) {
+            invoke("updateHologram", block, top, bottom);
+        }
+
+        private Object invoke(String method, Object... args) {
+            try {
+                Class<?> storage = this.barrel.getClass();
+
+                for (Method name : storage.getDeclaredMethods()) {
+                    if (name.getName().equals(method) &&
+                            name.getParameterTypes().length == args.length
+                    ) {
+                        return name.invoke(storage, args);
+                    }
+                }
+            } catch (Throwable ignored) { }
+            return null;
+        }
     }
 }

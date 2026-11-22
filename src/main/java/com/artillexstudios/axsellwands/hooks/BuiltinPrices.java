@@ -15,8 +15,7 @@ import java.io.File;
 import java.util.UUID;
 
 public class BuiltinPrices extends ShopIntegration {
-    public static BuiltinPrices INSTANCE;
-    private static Config PRICES;
+    private Config PRICES;
 
     public BuiltinPrices() {
         super("builtin");
@@ -27,14 +26,9 @@ public class BuiltinPrices extends ShopIntegration {
         return true;
     }
 
-    public void reload() {
-        if (PRICES != null) PRICES.reload();
-    }
-
     @Override
     public boolean setup() {
-        if (PRICES == null) PRICES = new Config(new File(AxSellwands.getInstance().getDataFolder(), "prices.yml"), AxSellwands.getInstance().getResource("prices.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).build());
-        INSTANCE = this;
+        PRICES = new Config(new File(AxSellwands.getInstance().getDataFolder(), "prices.yml"), AxSellwands.getInstance().getResource("prices.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).build());
         return PRICES.getBackingDocument() != null;
     }
 

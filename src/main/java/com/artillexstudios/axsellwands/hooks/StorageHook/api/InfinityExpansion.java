@@ -1,22 +1,16 @@
 package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
-import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.StorageType;
-import io.github.mooy1.infinityexpansion.items.storage.StorageCache;
-import io.github.mooy1.infinityexpansion.items.storage.StorageUnit;
-import me.mrCookieSlime.Slimefun.api.BlockStorage;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import com.artillexstudios.axsellwands.utils.slimefun.BlockMenu;
+import com.artillexstudios.axsellwands.utils.slimefun.BlockStorage;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.block.data.type.WallSign;
+import org.bukkit.material.Sign;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
-import java.util.AbstractMap.SimpleEntry;
 
-import static com.artillexstudios.axsellwands.AxSellwands.sendMessage;
-import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getBlockMenu;
+import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.*;
 
 public class InfinityExpansion implements StorageHook {
 
@@ -29,20 +23,18 @@ public class InfinityExpansion implements StorageHook {
 
     @Override
     public ItemStack getContents(Block b) {
-        SimpleEntry<StorageUnit, Location> data = getStorageUnit(b);
-        if (data == null) return null;
-        Location location = data.getValue();
-        BlockMenu menu = getBlockMenu(location);
+        Location unit = getStorageUnit(b);
+        if (unit == null) return null;
+        BlockMenu menu = getBlockMenu(b);
         if (menu == null) return null;
         ItemStack stored = menu.getItemInSlot(13);
         if (stored == null) return null;
-        int amount = Integer.parseInt(BlockStorage.getLocationInfo(location, "stored"));
+        int amount = Integer.parseInt(BlockStorage.getLocationInfo(unit, "stored"));
 
         for (int slot : OUTPUT_SLOTS){
             ItemStack item = menu.getItemInSlot(slot);
-            if (isSimilar(item, stored)) {
-                amount += item.getAmount();
-            }
+            if (item == null || item.getType() == org.bukkit.Material.AIR || item.getType() != stored.getType()) continue;
+            amount += item.getAmount();
         }
 
         return new ItemStack(stored.getType(), amount);
@@ -70,12 +62,9 @@ public class InfinityExpansion implements StorageHook {
 
             setEmptyMethod.invoke(cache);
         } catch (Exception exception) {
-            sendMessage("&4Failed to find method \"setEmpty\" (using legacy method)." +
-                    " Try to download a newer version of InfinityExpansion.");
-
             BlockStorage.addBlockInfo(location, "stored", "0");
 
-            // remove the output slot and then line 85 will remove the excess
+            // remove the output slot and then line below will remove the excess
             // this method should work the same as setEmpty?
             for (int slot : OUTPUT_SLOTS){
                 menu.replaceExistingItem(slot, null);
@@ -88,26 +77,28 @@ public class InfinityExpansion implements StorageHook {
     }
 
     @Nullable
-    private SimpleEntry<StorageUnit, Location> getStorageUnit(Block b){
-        if (BlockStorage.check(b) instanceof StorageUnit){
-            return new SimpleEntry<>(getUnit(b), b.getLocation());
+    private Location getStorageUnit(Block b){
+        if (isStorageUnit(getSlimefunItem(b))){
+            return b.getLocation();
         } else {
-            if (b.getBlockData() instanceof WallSign wallSign){
-                Block unitBlock = b.getRelative(wallSign.getFacing().getOppositeFace());
-                if (BlockStorage.check(unitBlock) instanceof StorageUnit){
-                    return new SimpleEntry<>(getUnit(unitBlock), unitBlock.getLocation());
+            Sign sign = (Sign) b.getState().getData();
+            if (sign.isWallSign()){
+                Block unitBlock = b.getRelative(sign.getFacing().getOppositeFace());
+                if (isStorageUnit(getSlimefunItem(unitBlock))){
+                    return unitBlock.getLocation();
                 }
-            } else if (b.getState() instanceof Sign){
+            } else if (b.getState().getType().name().endsWith("_SIGN")
+                    && !b.getState().getType().name().endsWith("_WALL_SIGN")) {
                 Block unitBlock = b.getRelative(0, -1, 0);
-                if (BlockStorage.check(unitBlock) instanceof StorageUnit){
-                    return new SimpleEntry<>(getUnit(unitBlock), unitBlock.getLocation());
+                if (isStorageUnit(getSlimefunItem(unitBlock))){
+                    return unitBlock.getLocation();
                 }
             }
             return null;
         }
     }
 
-    private StorageUnit getUnit(Block b){
-        return (StorageUnit) BlockStorage.check(b);
+    private boolean isStorageUnit(Object item) {
+        return item != null && item.getClass().getName().endsWith(".StorageUnit");
     }
 }

@@ -9,17 +9,14 @@ import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.Title;
-import com.artillexstudios.axintegrations.types.ContainerIntegration;
-import com.artillexstudios.axintegrations.types.CurrencyIntegration;
-import com.artillexstudios.axintegrations.types.ProtectionIntegration;
-import com.artillexstudios.axintegrations.types.ShopIntegration;
+import com.artillexstudios.axsellwands.hooks.integration.*;
 import com.artillexstudios.axsellwands.api.events.AxSellwandsSellEvent;
 import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager;
 import com.artillexstudios.axsellwands.sellwands.Sellwand;
 import com.artillexstudios.axsellwands.utils.HistoryUtils;
 import com.artillexstudios.axsellwands.utils.HologramUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
-import me.mrCookieSlime.Slimefun.api.inventory.BlockMenu;
+import com.artillexstudios.axsellwands.utils.slimefun.BlockMenu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -28,8 +25,8 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.Duration;
@@ -149,6 +146,7 @@ public class SellwandAction {
             MESSAGEUTILS.sendLang(player, "no-permission");
             return false;
         }
+
         return true;
     }
 
@@ -179,8 +177,8 @@ public class SellwandAction {
 
         if (isStorage(block)) {
             contents = new ItemStack[]{StorageIntegrationManager.getContents(block)};
-        } else if (block.getState() instanceof Container) {
-            contents = ((Container) block.getState()).getInventory().getContents();
+        } else if (block.getState() instanceof InventoryHolder) {
+            contents = ((InventoryHolder) block.getState()).getInventory().getContents();
         } else if (block.getType() == Material.ENDER_CHEST) {
             contents = player.getEnderChest().getContents();
         } else {

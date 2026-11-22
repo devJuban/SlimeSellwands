@@ -12,12 +12,17 @@ public class NumberUtils {
     public static void reload() {
         int mode = CONFIG.getInt("number-formatting.mode", 0);
         switch (mode) {
-            case 0 -> formatter = new DecimalFormat(CONFIG.getString("number-formatting.formatted", "#,###.##"));
-            case 1 -> {
+            case 0:
+                formatter = new DecimalFormat(CONFIG.getString("number-formatting.formatted", "#,###.##"));
+                break;
+            case 1: {
                 final String[] lang = CONFIG.getString("number-formatting.short", "en_US").split("_");
-                formatter = DecimalFormat.getCompactNumberInstance(Locale.of(lang[0], lang[1]), NumberFormat.Style.SHORT);
+                formatter = NumberFormat.getNumberInstance(new Locale(lang[0], lang[1]));
+                break;
             }
-            case 2 -> formatter = null;
+            case 2:
+                formatter = null;
+                break;
         }
     }
 

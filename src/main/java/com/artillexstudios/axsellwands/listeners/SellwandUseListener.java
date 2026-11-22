@@ -34,7 +34,8 @@ public class SellwandUseListener implements Listener {
         }
 
         EventExecutor executor = (listener, event) -> {
-            if (listener instanceof SellwandUseListener && event instanceof PlayerInteractEvent useEvent) {
+            if (listener instanceof SellwandUseListener && event instanceof PlayerInteractEvent) {
+                PlayerInteractEvent useEvent = (PlayerInteractEvent) event;
                 useListener.onInteract(useEvent);
             }
         };
