@@ -46,6 +46,7 @@ public class StorageIntegrationManager {
     }
 
     public static boolean isStorage(Block block) {
+        if (BlockStorage.check(block) == null) return false;
 
         for (StorageHook hook : getStorageHook()) {
             if (hook.isStorage(block)) return true;
@@ -99,44 +100,4 @@ public class StorageIntegrationManager {
     public static List<StorageHook> getStorageHook() {
         return storageHooks;
     }
-
-//    public static String getLocationInfo(org.bukkit.Location location, String key) {
-//        Object value = callBlockStorage("getLocationInfo", location, key);
-//        return value == null ? null : String.valueOf(value);
-//    }
-//
-//    public static void addBlockInfo(org.bukkit.Location location, String key, String value) {
-//        callBlockStorage("addBlockInfo", location, key, value);
-//    }
-//
-//    private static Object callBlockStorage(String methodName, Object... args) {
-//        if (Bukkit.getPluginManager().getPlugin("Slimefun") == null) return null;
-//        try {
-//            Class<?> storage = Class.forName("me.mrCookieSlime.Slimefun.api.BlockStorage");
-//            for (Method method : storage.getMethods()) {
-//                if (!method.getName().equals(methodName) || method.getParameterTypes().length != args.length) continue;
-//                boolean matches = true;
-//                Class<?>[] types = method.getParameterTypes();
-//                for (int i = 0; i < args.length; i++) {
-//                    if (args[i] == null) { if (types[i].isPrimitive()) matches = false; }
-//                    else if (!wrap(types[i]).isAssignableFrom(args[i].getClass())) matches = false;
-//                }
-//                if (matches) return method.invoke(null, args);
-//            }
-//        } catch (Throwable ignored) { }
-//        return null;
-//    }
-//
-//    private static Class<?> wrap(Class<?> type) {
-//        if (!type.isPrimitive()) return type;
-//        if (type == int.class) return Integer.class;
-//        if (type == long.class) return Long.class;
-//        if (type == boolean.class) return Boolean.class;
-//        if (type == double.class) return Double.class;
-//        if (type == float.class) return Float.class;
-//        if (type == short.class) return Short.class;
-//        if (type == byte.class) return Byte.class;
-//        if (type == char.class) return Character.class;
-//        return type;
-//    }
 }

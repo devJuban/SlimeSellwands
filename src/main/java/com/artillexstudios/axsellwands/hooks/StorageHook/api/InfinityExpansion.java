@@ -33,8 +33,9 @@ public class InfinityExpansion implements StorageHook {
 
         for (int slot : OUTPUT_SLOTS){
             ItemStack item = menu.getItemInSlot(slot);
-            if (item == null || item.getType() == org.bukkit.Material.AIR || item.getType() != stored.getType()) continue;
-            amount += item.getAmount();
+            if (isSimilar(item, stored)) {
+                amount += item.getAmount();
+            }
         }
 
         return new ItemStack(stored.getType(), amount);
@@ -47,20 +48,20 @@ public class InfinityExpansion implements StorageHook {
 
     @Override
     public void emptyStorage(Block b) {
-        SimpleEntry<StorageUnit, Location> data = getStorageUnit(b);
-        if (data == null) return;
-        Location location = data.getValue();
+        Location location = getStorageUnit(b);
+        if (location == null) return;
 
-        StorageCache cache = data.getKey().getCache(location);
-        if (cache == null) return;
+//        StorageCache cache = data.getKey().getCache(location);
+//        if (cache == null) return;
         BlockMenu menu = getBlockMenu(location);
         if (menu == null) return;
 
         try {
-            Method setEmptyMethod = cache.getClass().getDeclaredMethod("setEmpty");
-            setEmptyMethod.setAccessible(true);
-
-            setEmptyMethod.invoke(cache);
+//            Method setEmptyMethod = cache.getClass().getDeclaredMethod("setEmpty");
+//            setEmptyMethod.setAccessible(true);
+//
+//            setEmptyMethod.invoke(cache);
+            throw new Exception("");
         } catch (Exception exception) {
             BlockStorage.addBlockInfo(location, "stored", "0");
 
@@ -81,24 +82,28 @@ public class InfinityExpansion implements StorageHook {
         if (isStorageUnit(getSlimefunItem(b))){
             return b.getLocation();
         } else {
-            Sign sign = (Sign) b.getState().getData();
-            if (sign.isWallSign()){
+            if (b.getState().getData() instanceof Sign &&
+                    ((Sign) b.getState().getData()).isWallSign()
+            ) {
+                Sign sign = (Sign) b.getState().getData();
+
                 Block unitBlock = b.getRelative(sign.getFacing().getOppositeFace());
                 if (isStorageUnit(getSlimefunItem(unitBlock))){
                     return unitBlock.getLocation();
                 }
-            } else if (b.getState().getType().name().endsWith("_SIGN")
-                    && !b.getState().getType().name().endsWith("_WALL_SIGN")) {
+            } else if (b.getState() instanceof org.bukkit.block.Sign) {
                 Block unitBlock = b.getRelative(0, -1, 0);
-                if (isStorageUnit(getSlimefunItem(unitBlock))){
+
+                if (isStorageUnit(getSlimefunItem(unitBlock))) {
                     return unitBlock.getLocation();
                 }
             }
+
             return null;
         }
     }
 
-    private boolean isStorageUnit(Object item) {
-        return item != null && item.getClass().getName().endsWith(".StorageUnit");
+    private boolean isStorageUnit(Object block) {
+        return block != null && block.getClass().getName().endsWith(".StorageUnit");
     }
 }

@@ -9,10 +9,10 @@ public enum ClickType {
 
     @Nullable
     public static ClickType from(Action action) {
-        return switch (action) {
-            case LEFT_CLICK_BLOCK -> LEFT;
-            case RIGHT_CLICK_BLOCK -> RIGHT;
-            default -> null;
-        };
+
+        if (action == Action.LEFT_CLICK_BLOCK) return LEFT;
+        if (action == Action.RIGHT_CLICK_BLOCK) return RIGHT;
+
+        return null;
     }
 }

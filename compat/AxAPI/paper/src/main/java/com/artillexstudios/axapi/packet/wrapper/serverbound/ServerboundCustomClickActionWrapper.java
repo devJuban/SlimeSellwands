@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.packet.wrapper.serverbound;
 
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.PacketEvent;
 import com.artillexstudios.axapi.packet.PacketType;

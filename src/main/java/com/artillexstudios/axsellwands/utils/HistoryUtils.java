@@ -37,16 +37,17 @@ public class HistoryUtils {
     public static void writeToHistory(String text) {
         ZonedDateTime now = ZonedDateTime.now();
         if (logToFile) {
-            try {
-                String line = "[%s] %s%s".formatted(now.format(TIME_FORMAT), text, System.lineSeparator());
-                Path logFile = logsDir.resolve("%s.log".formatted(now.format(FILE_FORMAT)));
-                Files.writeString(logFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+//            try {
+//                String line = String.format("[%s] %s%s", now.format(TIME_FORMAT), text, System.lineSeparator());
+//                //"%s.log".formatted(now.format(FILE_FORMAT))
+//                Path logFile = logsDir.resolve(String.format("%s.log", now.format(FILE_FORMAT)));
+//                Files.writeString(logFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+//            } catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
         }
         if (logToConsole) {
-            String line = "[%s] %s".formatted(AxSellwands.getInstance().getName(), text);
+            String line = String.format("[%s] %s", AxSellwands.getInstance().getName(), text);
             Bukkit.getConsoleSender().sendMessage(line);
         }
     }

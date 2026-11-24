@@ -29,25 +29,7 @@ The plugin is compiled to Java 8 bytecode against the Spigot 1.8.8 API and uses 
 The separate compatibility artifacts can be built from their directories:
 
 - `cd compat/AxAPI && ./gradlew :api:shadowJar` builds the Java 8 AxAPI core.
-- `cd compat/AxIntegrations && ./gradlew :legacy:jar` builds the shared AxIntegrations core with Vault and built-in currencies for Spigot 1.8.8.
-
-# Changes
-
-| File Changed                  | Changed                                |
-|-------------------------------|----------------------------------------|
-| `./AxSellwands`               | Added Informative Messages             |
-| `./pom.xml`                   | Added dependencies                     |
-| `./lang.yml`                  | Added `block-has-viewer`               |
-| `./config.yml`                | Added `slimefun-integration`           |
-| `./plugin.yml`                | Added soft depenecies                  |
-| `./SellwandUseListener`       | Added compatibilty with Slimefun       |
-| `./BetterInfinityExpansion`   | Hook for BetterInfinityExpansion       |
-| `./FluffyMachines`            | Hook for FluffyMachines                |
-| `./InfinityExpansion`         | Hook for InfinityExpansion             |
-| `./StorageHook`               | Blueprint for API                      |
-| `./StorageIntegrationManager` | StorageHook manager                    |
-| `./GenericSlimefunStorage`    | Reflective Slimefun 5 storage fallback |
-| `./SlimefunHook`              | DEPRECATED: Old Slimefun Hook          |
+- `cd compat/AxIntegrations && ./gradlew :legacy:jar` builds the shared AxIntegrations core with Vault and built-in currencies for Spigot 1.8.8
 
 # Credits
 [@Artillex-Studios](https://github.com/Artillex-Studios/) - providing AxSellwand

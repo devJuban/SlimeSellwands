@@ -1,7 +1,7 @@
 package com.artillexstudios.axsellwands.listeners;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
-import com.artillexstudios.axapi.items.WrappedItemStack;
+//import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axsellwands.AxSellwands;
 import com.artillexstudios.axsellwands.actions.ClickType;
@@ -29,7 +29,7 @@ public class SellwandUseListener implements Listener {
         try {
             eventPriority = EventPriority.valueOf(priority);
         } catch (IllegalArgumentException ex) {
-            Bukkit.getConsoleSender().sendMessage(StringUtils.formatToString("&#FF0000[AxSellwands] Invalid event priority: &#FFAAAA%s".formatted(priority)));
+            Bukkit.getConsoleSender().sendMessage(String.format("&#FF0000[AxSellwands] Invalid event priority: &#FFAAAA%s", priority));
             eventPriority = EventPriority.LOW;
         }
 
@@ -55,8 +55,7 @@ public class SellwandUseListener implements Listener {
         if (item == null) return;
         Block block = event.getClickedBlock();
         if (block == null) return;
-        WrappedItemStack wrapped = WrappedItemStack.wrap(item);
-        NBTWrapper wrapper = new NBTWrapper(wrapped);
+        NBTWrapper wrapper = new NBTWrapper(item);
         String type = wrapper.getString("axsellwands-type");
         if (type == null) return;
         Sellwand sellwand = Sellwands.getSellwands().get(type);
@@ -67,7 +66,7 @@ public class SellwandUseListener implements Listener {
         Player player = event.getPlayer();
 
         SellwandAction action = new SellwandAction(
-                item, block, player, wrapped, wrapper, sellwand, clickType
+                item, block, player, wrapper, sellwand, clickType
         );
         action.build();
     }

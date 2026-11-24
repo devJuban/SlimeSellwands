@@ -9,7 +9,6 @@ import com.artillexstudios.axapi.items.component.type.ProfileProperties;
 import com.artillexstudios.axapi.items.component.type.Rarity;
 import com.artillexstudios.axapi.items.component.type.Unbreakable;
 import com.artillexstudios.axapi.items.component.type.Unit;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.utils.ComponentSerializer;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.key.Key;

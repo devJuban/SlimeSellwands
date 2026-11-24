@@ -1,7 +1,5 @@
 package com.artillexstudios.axapi.nms.v26_2.items.nbt;
 
-import com.artillexstudios.axapi.items.nbt.Tag;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;

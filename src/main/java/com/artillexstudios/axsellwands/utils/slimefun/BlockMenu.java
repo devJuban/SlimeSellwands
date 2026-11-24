@@ -6,9 +6,7 @@ import java.lang.reflect.Method;
 
 public class BlockMenu {
 
-    private static String BlockMenyClass = "me.mrCookieSlime.Slimefun.api.inventory.BlockMenu";
-
-    private Object menu;
+    private final Object menu;
 
     public BlockMenu(Object menu) {
         this.menu = menu;
@@ -29,7 +27,11 @@ public class BlockMenu {
     private Object invoke(String name, Object... args) {
         try {
             for (Method method : menu.getClass().getMethods()) {
-                if (method.getName().equals(name) && method.getParameterTypes().length == args.length) return method.invoke(menu, args);
+                if (method.getName().equals(name) &&
+                        method.getParameterTypes().length == args.length)
+                {
+                    return method.invoke(menu, args);
+                }
             }
         } catch (Throwable ignored) { }
         return null;

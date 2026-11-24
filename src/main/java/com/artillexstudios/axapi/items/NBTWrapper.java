@@ -4,6 +4,7 @@ import com.artillexstudios.axapi.AxPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
-/** Persistent sellwand fields using Bukkit PDC on modern servers and NBT reflection on legacy servers. */
 public final class NBTWrapper {
     private static final String LORE_PREFIX = "§0§0axsw:";
     private final ItemStack item;
@@ -27,7 +27,11 @@ public final class NBTWrapper {
         }
     }
 
-    public String getString(String key) { Object value = values.get(key); return value == null ? null : String.valueOf(value); }
+    public String getString(String key) {
+        Object value = values.get(key);
+        return value == null ? null : String.valueOf(value);
+    }
+
     public UUID getUUID(String key) {
         Object value = values.get(key);
         if (value instanceof UUID) return (UUID) value;
@@ -54,11 +58,12 @@ public final class NBTWrapper {
         try {
             Object container = container(item.getItemMeta());
             if (container == null) return;
+
             for (Map.Entry<String, Class<?>> entry : valueTypes().entrySet()) {
                 Object value = pdcGet(container, entry.getKey(), entry.getValue());
                 if (value != null) values.put(entry.getKey(), value);
             }
-        } catch (Throwable ignored) { }
+        } catch (Throwable ignored) {}
     }
 
     private boolean writePersistentData() {
@@ -66,7 +71,10 @@ public final class NBTWrapper {
             ItemMeta meta = item.getItemMeta();
             Object container = container(meta);
             if (container == null) return false;
-            for (Map.Entry<String, Object> entry : values.entrySet()) pdcSet(container, entry.getKey(), entry.getValue());
+
+            for (Map.Entry<String, Object> entry : values.entrySet()) {
+                pdcSet(container, entry.getKey(), entry.getValue());
+            }
             item.setItemMeta(meta);
             return true;
         } catch (Throwable ignored) { return false; }
@@ -75,6 +83,8 @@ public final class NBTWrapper {
     private Object container(ItemMeta meta) throws Exception {
         if (meta == null) return null;
         Method method = meta.getClass().getMethod("getPersistentDataContainer");
+        method.setAccessible(true);
+
         return method.invoke(meta);
     }
 
@@ -82,7 +92,11 @@ public final class NBTWrapper {
         Class<?> type = Class.forName("org.bukkit.NamespacedKey");
         for (java.lang.reflect.Constructor<?> constructor : type.getConstructors()) {
             Class<?>[] parameters = constructor.getParameterTypes();
-            if (parameters.length == 2 && parameters[0].isInstance(AxPlugin.getInstance()) && parameters[1] == String.class) {
+            if (parameters.length == 2 &&
+                    parameters[0] == Plugin.class &&
+                    parameters[1] == String.class
+
+            ) {
                 return constructor.newInstance(AxPlugin.getInstance(), name);
             }
         }

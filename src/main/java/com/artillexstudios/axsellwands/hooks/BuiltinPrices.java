@@ -1,12 +1,8 @@
 package com.artillexstudios.axsellwands.hooks;
 
 import com.artillexstudios.axapi.config.Config;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.dumper.DumperSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.general.GeneralSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.loader.LoaderSettings;
-import com.artillexstudios.axapi.libs.boostedyaml.settings.updater.UpdaterSettings;
-import com.artillexstudios.axintegrations.types.ShopIntegration;
 import com.artillexstudios.axsellwands.AxSellwands;
+import com.artillexstudios.axsellwands.hooks.integration.ShopIntegration;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +11,8 @@ import java.io.File;
 import java.util.UUID;
 
 public class BuiltinPrices extends ShopIntegration {
-    private Config PRICES;
+    public static BuiltinPrices INSTANCE;
+    private static Config PRICES;
 
     public BuiltinPrices() {
         super("builtin");
@@ -26,9 +23,14 @@ public class BuiltinPrices extends ShopIntegration {
         return true;
     }
 
+    public void reload() {
+        if (PRICES != null) PRICES.reload();
+    }
+
     @Override
     public boolean setup() {
-        PRICES = new Config(new File(AxSellwands.getInstance().getDataFolder(), "prices.yml"), AxSellwands.getInstance().getResource("prices.yml"), GeneralSettings.builder().setUseDefaults(false).build(), LoaderSettings.builder().build(), DumperSettings.DEFAULT, UpdaterSettings.builder().setKeepAll(true).build());
+        if (PRICES == null) PRICES = new Config(new File(AxSellwands.getInstance().getDataFolder(), "prices.yml"), AxSellwands.getInstance().getResource("prices.yml"));
+        INSTANCE = this;
         return PRICES.getBackingDocument() != null;
     }
 

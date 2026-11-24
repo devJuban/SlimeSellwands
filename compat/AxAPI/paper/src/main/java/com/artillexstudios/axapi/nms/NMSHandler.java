@@ -4,7 +4,6 @@ import com.artillexstudios.axapi.gui.AnvilInput;
 import com.artillexstudios.axapi.gui.SignInput;
 import com.artillexstudios.axapi.items.component.DataComponentImpl;
 import com.artillexstudios.axapi.items.components.DataComponent;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.loot.LootTable;
 import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
 import com.artillexstudios.axapi.nms.wrapper.WrapperMapper;

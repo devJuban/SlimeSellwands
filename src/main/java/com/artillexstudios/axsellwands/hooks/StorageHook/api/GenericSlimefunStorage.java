@@ -8,9 +8,9 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+
 import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getSlimefunItem;
 
-/** Reflective fallback for Slimefun storage addons without a shared API. */
 public final class GenericSlimefunStorage implements StorageHook {
     private static final String[] CONTENT_METHODS = {"getStoredItem", "getContents"};
     private static final String[] EMPTY_METHODS = {"emptyUnit", "empty", "clear", "setStored"};

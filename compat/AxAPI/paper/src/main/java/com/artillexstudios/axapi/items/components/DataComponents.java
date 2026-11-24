@@ -7,7 +7,6 @@ import com.artillexstudios.axapi.items.components.data.ItemEnchantments;
 import com.artillexstudios.axapi.items.components.data.ItemLore;
 import com.artillexstudios.axapi.items.components.data.PotionContents;
 import com.artillexstudios.axapi.items.components.data.Rarity;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.ResolvableProfile;
 import net.kyori.adventure.key.Key;

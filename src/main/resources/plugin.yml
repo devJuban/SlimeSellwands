@@ -1,6 +1,7 @@
 name: SlimeSellwands
 version: '${project.version}'
 main: com.artillexstudios.axsellwands.AxSellwands
+api-version: 1.8
 
 commands:
   axsellwands:

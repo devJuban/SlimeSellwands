@@ -1,12 +1,12 @@
 package com.artillexstudios.axsellwands.actions;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
-import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.components.DataComponents;
+//import com.artillexstudios.axapi.items.WrappedItemStack;
+//import com.artillexstudios.axapi.items.components.DataComponents;
 import com.artillexstudios.axapi.libs.boostedyaml.block.implementation.Section;
-import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
-import com.artillexstudios.axapi.utils.ActionBar;
-import com.artillexstudios.axapi.utils.ItemBuilder;
+//import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
+//import com.artillexstudios.axapi.utils.ActionBar;
+//import com.artillexstudios.axapi.utils.ItemBuilder;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.Title;
 import com.artillexstudios.axsellwands.hooks.integration.*;
@@ -22,7 +22,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
+//import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -43,7 +43,6 @@ import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrati
 
 public class SellwandAction {
     private final ItemStack item;
-    private final WrappedItemStack wrapped;
     private final Block block;
     private final Player player;
     private final NBTWrapper wrapper;
@@ -63,11 +62,10 @@ public class SellwandAction {
     private double processedPrice = 0D;
     private final Map<Material, Integer> soldItems = new HashMap<>();
 
-    public SellwandAction(ItemStack item, Block block, Player player, WrappedItemStack wrapped, NBTWrapper wrapper, Sellwand sellwand, ClickType clickType) {
+    public SellwandAction(ItemStack item, Block block, Player player, NBTWrapper wrapper, Sellwand sellwand, ClickType clickType) {
         this.item = item;
         this.block = block;
         this.player = player;
-        this.wrapped = wrapped;
         this.wrapper = wrapper;
         this.sellwand = sellwand;
         this.clickType = clickType;
@@ -114,7 +112,7 @@ public class SellwandAction {
             processedPrice += price;
         }
         if (!anyProcessed()) return;
-        print(ActionType.INSPECT);
+        //print(ActionType.INSPECT);
     }
 
     private void sell() {
@@ -132,7 +130,7 @@ public class SellwandAction {
         callSellEvent();
         logSell();
         payPlayer();
-        print(ActionType.SELL);
+        //print(ActionType.SELL);
         if (updateUses()) {
             updateItem();
         }
@@ -215,8 +213,12 @@ public class SellwandAction {
         if (lastUsed == null) return true;
         if (clickType != ClickType.RIGHT) return true;
         if (System.currentTimeMillis() - lastUsed < sellwand.getCooldown()) {
-            long cooldown = Duration.ofMillis(sellwand.getCooldown() - System.currentTimeMillis() + lastUsed).toSeconds();
-            MESSAGEUTILS.sendLang(player, "cooldown", Map.of("%time%", String.valueOf(cooldown)));
+            long cooldown = Duration.ofMillis(sellwand.getCooldown() - System.currentTimeMillis() + lastUsed).getSeconds();
+            HashMap<String, String> map = new HashMap<>();
+            map.put("%time%", String.valueOf(cooldown));
+            MESSAGEUTILS.sendLang(player, "cooldown", map);
+
+
             return false;
         }
         return true;
@@ -233,13 +235,14 @@ public class SellwandAction {
 
     private void checkActions() {
         Section section = CONFIG.getSection("actions");
-        switch (clickType) {
-            case LEFT -> {
-                actions.add(ActionType.from(section.getString("left")));
-            }
-            case RIGHT -> {
-                actions.add(ActionType.from(section.getString("right")));
-            }
+
+        if (clickType == ClickType.LEFT) {
+            actions.add(ActionType.from(section.getString("left")));
+            return;
+        }
+
+        if (clickType == ClickType.RIGHT) {
+            actions.add(ActionType.from(section.getString("right")));
         }
     }
 
@@ -286,17 +289,8 @@ public class SellwandAction {
     }
 
     private void updateItem() {
-        String unlimited = LANG.getString("unlimited", "∞");
-        ItemBuilder builder = ItemBuilder.create(
-                sellwand.getItemSection(),
-                Placeholder.unparsed("multiplier", String.valueOf(multiplier)),
-                Placeholder.unparsed("uses", String.valueOf(uses == -1 ? unlimited : uses)),
-                Placeholder.unparsed("max-uses", String.valueOf(maxUses == -1 ? unlimited : maxUses)),
-                Placeholder.unparsed("sold-amount", NumberUtils.formatNumber(soldAmount + processedAmount)),
-                Placeholder.unparsed("sold-price", NumberUtils.formatNumber(soldPrice + processedPrice))
-        );
-        WrappedItemStack built = builder.wrapped();
-        NBTWrapper wrapperNew = new NBTWrapper(built);
+
+        NBTWrapper wrapperNew = new NBTWrapper(item);
         wrapperNew.set("axsellwands-uuid", uuid);
         wrapperNew.set("axsellwands-uses", uses);
         wrapperNew.set("axsellwands-lastused", System.currentTimeMillis());
@@ -307,20 +301,13 @@ public class SellwandAction {
         wrapperNew.set("axsellwands-max-uses", maxUses);
         wrapperNew.build();
 
-        wrapped.set(DataComponents.CUSTOM_DATA, built.get(DataComponents.CUSTOM_DATA));
-        wrapped.set(DataComponents.MATERIAL, built.get(DataComponents.MATERIAL));
-        wrapped.set(DataComponents.CUSTOM_NAME, built.get(DataComponents.CUSTOM_NAME));
-        wrapped.set(DataComponents.DYED_COLOR, built.get(DataComponents.DYED_COLOR));
-        wrapped.set(DataComponents.CUSTOM_MODEL_DATA, built.get(DataComponents.CUSTOM_MODEL_DATA));
-        wrapped.set(DataComponents.PROFILE, built.get(DataComponents.PROFILE));
-        wrapped.set(DataComponents.LORE, built.get(DataComponents.LORE));
-        wrapped.finishEdit();
+        block.getState().update();
     }
 
     private void updateContainer() {
         emptyStorage(block);
-        if (!(block.getState() instanceof Container container)) return;
-        container.update();
+        if (!(block.getState() instanceof InventoryHolder)) return;
+        InventoryHolder holder = (InventoryHolder) block.getState();
     }
 
     private boolean anyProcessed() {
@@ -331,84 +318,84 @@ public class SellwandAction {
         return true;
     }
 
-    private void print(ActionType actionType) {
-        if (actionType == ActionType.SELL) {
-            if (CONFIG.getBoolean("hologram.enabled", true)) {
-                HologramUtils.spawnHologram(player, block.getLocation().clone().add(0.5, 0.5, 0.5), Map.of( // todo: migrate to components
-                        "%amount%", NumberUtils.formatNumber(processedAmount),
-                        "%price%", NumberUtils.formatNumber(processedPrice)
-                ));
-            }
-        }
-
-        {
-            String text = LANG.getString("%s.chat".formatted(actionType.raw()));
-            if (notBlank(text)) {
-                Component message = StringUtils.format(
-                        text,
-                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-                );
-                ServerPlayerWrapper.wrap(player).message(StringUtils.format(CONFIG.getString("prefix")).append(message));
-            }
-        }
-
-        {
-            String text = LANG.getString("%s.actionbar".formatted(actionType.raw()));
-            if (notBlank(text)) {
-                Component message = StringUtils.format(
-                        text,
-                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-                );
-                ActionBar actionBar = ActionBar.create(message);
-                actionBar.send(player);
-            }
-        }
-
-        {
-            Section titleSection = LANG.getSection("%s.title".formatted(actionType.raw()));
-            if (titleSection != null) {
-                String title = titleSection.getString("title");
-                String subtitle = titleSection.getString("subtitle");
-                if (notBlank(title)) {
-                    Component titleComponent = StringUtils.format(
-                            title,
-                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-                    );
-                    Component subtitleComponent = notBlank(subtitle) ? StringUtils.format(
-                            subtitle,
-                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-                    ) : null;
-                    Title titleObj = new Title(
-                            titleComponent,
-                            subtitleComponent,
-                            10, 40, 10
-                    );
-                    titleObj.send(player);
-                }
-            }
-        }
-
-        {
-            String text = LANG.getString("sounds.%s".formatted(actionType.raw()));
-            if (notBlank(text)) {
-                player.playSound(player.getLocation(), Sound.valueOf(text), 1f, 1f);
-            }
-        }
-
-        {
-            String text = LANG.getString("particles.%s".formatted(actionType.raw()));
-            if (notBlank(text)) {
-                Location location = block.getLocation().clone().add(0.5, 0.5, 0.5);
-                player.spawnParticle(Particle.valueOf(text), location, 30, 0.5, 0.5, 0.5);
-            }
-        }
-    }
+//    private void print(ActionType actionType) {
+//        if (actionType == ActionType.SELL) {
+//            if (CONFIG.getBoolean("hologram.enabled", true)) {
+//                HologramUtils.spawnHologram(player, block.getLocation().clone().add(0.5, 0.5, 0.5), Map.of( // todo: migrate to components
+//                        "%amount%", NumberUtils.formatNumber(processedAmount),
+//                        "%price%", NumberUtils.formatNumber(processedPrice)
+//                ));
+//            }
+//        }
+//
+//        {
+//            String text = LANG.getString("%s.chat".formatted(actionType.raw()));
+//            if (notBlank(text)) {
+//                Component message = StringUtils.format(
+//                        text,
+//                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+//                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+//                );
+//                ServerPlayerWrapper.wrap(player).message(StringUtils.format(CONFIG.getString("prefix")).append(message));
+//            }
+//        }
+//
+//        {
+//            String text = LANG.getString("%s.actionbar".formatted(actionType.raw()));
+//            if (notBlank(text)) {
+//                Component message = StringUtils.format(
+//                        text,
+//                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+//                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+//                );
+//                ActionBar actionBar = ActionBar.create(message);
+//                actionBar.send(player);
+//            }
+//        }
+//
+//        {
+//            Section titleSection = LANG.getSection("%s.title".formatted(actionType.raw()));
+//            if (titleSection != null) {
+//                String title = titleSection.getString("title");
+//                String subtitle = titleSection.getString("subtitle");
+//                if (notBlank(title)) {
+//                    Component titleComponent = StringUtils.format(
+//                            title,
+//                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+//                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+//                    );
+//                    Component subtitleComponent = notBlank(subtitle) ? StringUtils.format(
+//                            subtitle,
+//                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+//                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+//                    ) : null;
+//                    Title titleObj = new Title(
+//                            titleComponent,
+//                            subtitleComponent,
+//                            10, 40, 10
+//                    );
+//                    titleObj.send(player);
+//                }
+//            }
+//        }
+//
+//        {
+//            String text = LANG.getString("sounds.%s".formatted(actionType.raw()));
+//            if (notBlank(text)) {
+//                player.playSound(player.getLocation(), Sound.valueOf(text), 1f, 1f);
+//            }
+//        }
+//
+//        {
+//            String text = LANG.getString("particles.%s".formatted(actionType.raw()));
+//            if (notBlank(text)) {
+//                Location location = block.getLocation().clone().add(0.5, 0.5, 0.5);
+//                //player.spawnParticle(Particle.valueOf(text), location, 30, 0.5, 0.5, 0.5);
+//            }
+//        }
+//    }
 
     private boolean notBlank(String text) {
-        return text != null && !text.isBlank();
+        return text != null && !text.isEmpty();
     }
 }

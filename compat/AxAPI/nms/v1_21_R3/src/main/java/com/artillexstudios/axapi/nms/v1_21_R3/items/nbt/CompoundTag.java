@@ -1,7 +1,6 @@
 package com.artillexstudios.axapi.nms.v1_21_R3.items.nbt;
 
 import com.artillexstudios.axapi.reflection.FieldAccessor;
-import com.artillexstudios.axapi.items.nbt.Tag;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;

@@ -5,7 +5,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.List;
 import java.util.Set;
 
-/** Wrapper kept to avoid changing the plugin's existing configuration call sites. */
 public final class Section {
     private final ConfigurationSection section;
     public Section(ConfigurationSection section) { this.section = section; }

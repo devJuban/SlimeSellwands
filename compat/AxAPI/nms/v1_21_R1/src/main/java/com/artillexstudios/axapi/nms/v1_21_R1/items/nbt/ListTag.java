@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_21_R1.items.nbt;
 
-import com.artillexstudios.axapi.items.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 
 public class ListTag implements com.artillexstudios.axapi.items.nbt.ListTag {

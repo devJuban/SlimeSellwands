@@ -2,7 +2,6 @@ package com.artillexstudios.axsellwands.hooks.StorageHook.api;
 
 import com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.StorageType;
 import com.artillexstudios.axsellwands.utils.slimefun.BlockMenu;
-import com.artillexstudios.axsellwands.utils.slimefun.BlockStorage;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -64,8 +63,9 @@ public class FluffyMachines implements StorageHook {
     @Nullable
     private Barrel getBarrel(Block b){
         Object slimefunItem = getSlimefunItem(b);
+        if (slimefunItem == null) return null;
 
-        return (Barrel) BlockStorage.check(b);
+        return new Barrel(getSlimefunItem(b));
     }
 
     // reimpl the barrel class

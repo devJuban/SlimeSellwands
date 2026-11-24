@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.packet;
 
 import com.artillexstudios.axapi.items.HashedStack;
 import com.artillexstudios.axapi.items.WrappedItemStack;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.nms.NMSHandlers;
 import com.artillexstudios.axapi.utils.Vector3d;
 import com.artillexstudios.axapi.utils.Vector3f;

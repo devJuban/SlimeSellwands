@@ -2,7 +2,6 @@ package com.artillexstudios.axapi.packetentity.meta.serializer;
 
 import com.artillexstudios.axapi.items.WrappedItemStack;
 import com.artillexstudios.axapi.items.component.type.ProfileProperties;
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import com.artillexstudios.axapi.packet.FriendlyByteBuf;
 import com.artillexstudios.axapi.packet.data.GlobalPosition;
 import com.artillexstudios.axapi.packet.data.HumanoidArm;

@@ -1,6 +1,5 @@
 package com.artillexstudios.axapi.nms.v1_21_R7.items.datacomponents.impl;
 
-import com.artillexstudios.axapi.items.nbt.CompoundTag;
 import net.minecraft.world.item.component.CustomData;
 
 public final class CustomDataDataComponent implements DataComponentHandler<CompoundTag, CustomData> {

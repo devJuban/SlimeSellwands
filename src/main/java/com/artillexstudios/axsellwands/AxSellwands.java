@@ -3,6 +3,7 @@ package com.artillexstudios.axsellwands;
 import java.io.File;
 import java.util.AbstractMap.SimpleEntry;
 
+import com.artillexstudios.axsellwands.listeners.PlayerRightClickListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -50,6 +51,7 @@ public final class AxSellwands extends AxPlugin {
         if (lib.exists()) {
             com.artillexstudios.axapi.utils.file.FileUtils.deleteNested(lib.toPath());
         }
+
     }
 
     @Override
@@ -75,6 +77,10 @@ public final class AxSellwands extends AxPlugin {
         SellwandUseListener.registerEvent();
         getServer().getPluginManager().registerEvents(new CraftListener(), this);
         getServer().getPluginManager().registerEvents(new InventoryClickListener(), this);
+
+        if (isPluginEnabled("slimefun")) {
+            PlayerRightClickListener.registerEvent();
+        }
 
         sendMessage("&#FF5500Loaded plugin!");
 
@@ -138,7 +144,7 @@ public final class AxSellwands extends AxPlugin {
             dependencyMessage(sender, "&aDependency found: " + economy);
         }
 
-        reportOptional(sender, "PlaceholderAPI");
+        reportOptional(sender, "PlacelhoderAPI");
         reportOptional(sender, "WorldGuard");
 
         reportOptional(sender, "BetterInfinityExpansion");
