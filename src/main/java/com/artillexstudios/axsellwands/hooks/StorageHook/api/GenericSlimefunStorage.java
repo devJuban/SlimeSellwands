@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getSlimefunItem;
 
+// unable to verify is this code work
 public final class GenericSlimefunStorage implements StorageHook {
     private static final String[] CONTENT_METHODS = {"getStoredItem", "getContents"};
     private static final String[] EMPTY_METHODS = {"emptyUnit", "empty", "clear", "setStored"};

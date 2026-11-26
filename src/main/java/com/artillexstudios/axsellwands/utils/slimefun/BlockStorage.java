@@ -1,6 +1,5 @@
 package com.artillexstudios.axsellwands.utils.slimefun;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.Nullable;
@@ -9,7 +8,7 @@ import java.lang.reflect.Method;
 
 public class BlockStorage {
 
-    private static String BlockStorageClass = "me.mrCookieSlime.Slimefun.api.BlockStorage";
+    private static final String BlockStorageClass = "me.mrCookieSlime.Slimefun.api.BlockStorage";
 
     @Nullable
     public static BlockMenu getInventory(Block block) {
@@ -40,19 +39,27 @@ public class BlockStorage {
 
     @Nullable
     private static Object invoke(String method, Object... args) {
-        if (Bukkit.getPluginManager().getPlugin("slimefun") == null) return null;
-        
         try {
             Class<?> storage = Class.forName(BlockStorageClass);
 
             for (Method name : storage.getDeclaredMethods()) {
-                if (name.getName().equals(method) &&
-                        name.getParameterTypes().length == args.length
-                ) {
-                    return name.invoke(storage, args);
+                Class<?>[] types = name.getParameterTypes();
+                if (types.length != args.length) continue;
+                if (!name.getName().equals(method)) continue;
+
+                boolean exit = false;
+                for (int i = 0; i < types.length; i++) {
+                    if (!types[i].isInstance(args[i])) {
+                        exit = true;
+                        break;
+                    }
                 }
+
+                if (exit) continue;
+
+                return name.invoke(storage, args);
             }
-        } catch (Throwable ignored) { }
+        } catch (Throwable ignored) {}
         return null;
     }
 }

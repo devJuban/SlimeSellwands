@@ -1,12 +1,8 @@
 package com.artillexstudios.axsellwands.actions;
 
 import com.artillexstudios.axapi.items.NBTWrapper;
-//import com.artillexstudios.axapi.items.WrappedItemStack;
-//import com.artillexstudios.axapi.items.components.DataComponents;
 import com.artillexstudios.axapi.libs.boostedyaml.block.implementation.Section;
-//import com.artillexstudios.axapi.nms.wrapper.ServerPlayerWrapper;
-//import com.artillexstudios.axapi.utils.ActionBar;
-//import com.artillexstudios.axapi.utils.ItemBuilder;
+import com.artillexstudios.axapi.utils.ActionBar;
 import com.artillexstudios.axapi.utils.StringUtils;
 import com.artillexstudios.axapi.utils.Title;
 import com.artillexstudios.axsellwands.hooks.integration.*;
@@ -18,12 +14,9 @@ import com.artillexstudios.axsellwands.utils.HologramUtils;
 import com.artillexstudios.axsellwands.utils.NumberUtils;
 import com.artillexstudios.axsellwands.utils.slimefun.BlockMenu;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-//import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -112,7 +105,7 @@ public class SellwandAction {
             processedPrice += price;
         }
         if (!anyProcessed()) return;
-        //print(ActionType.INSPECT);
+        print(ActionType.INSPECT);
     }
 
     private void sell() {
@@ -130,7 +123,7 @@ public class SellwandAction {
         callSellEvent();
         logSell();
         payPlayer();
-        //print(ActionType.SELL);
+        print(ActionType.SELL);
         if (updateUses()) {
             updateItem();
         }
@@ -318,82 +311,87 @@ public class SellwandAction {
         return true;
     }
 
-//    private void print(ActionType actionType) {
-//        if (actionType == ActionType.SELL) {
-//            if (CONFIG.getBoolean("hologram.enabled", true)) {
-//                HologramUtils.spawnHologram(player, block.getLocation().clone().add(0.5, 0.5, 0.5), Map.of( // todo: migrate to components
-//                        "%amount%", NumberUtils.formatNumber(processedAmount),
-//                        "%price%", NumberUtils.formatNumber(processedPrice)
-//                ));
-//            }
-//        }
-//
-//        {
-//            String text = LANG.getString("%s.chat".formatted(actionType.raw()));
-//            if (notBlank(text)) {
-//                Component message = StringUtils.format(
-//                        text,
-//                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-//                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-//                );
-//                ServerPlayerWrapper.wrap(player).message(StringUtils.format(CONFIG.getString("prefix")).append(message));
-//            }
-//        }
-//
-//        {
-//            String text = LANG.getString("%s.actionbar".formatted(actionType.raw()));
-//            if (notBlank(text)) {
-//                Component message = StringUtils.format(
-//                        text,
-//                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-//                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-//                );
-//                ActionBar actionBar = ActionBar.create(message);
-//                actionBar.send(player);
-//            }
-//        }
-//
-//        {
-//            Section titleSection = LANG.getSection("%s.title".formatted(actionType.raw()));
-//            if (titleSection != null) {
-//                String title = titleSection.getString("title");
-//                String subtitle = titleSection.getString("subtitle");
-//                if (notBlank(title)) {
-//                    Component titleComponent = StringUtils.format(
-//                            title,
-//                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-//                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-//                    );
-//                    Component subtitleComponent = notBlank(subtitle) ? StringUtils.format(
-//                            subtitle,
-//                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
-//                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
-//                    ) : null;
-//                    Title titleObj = new Title(
-//                            titleComponent,
-//                            subtitleComponent,
-//                            10, 40, 10
-//                    );
-//                    titleObj.send(player);
-//                }
-//            }
-//        }
-//
-//        {
-//            String text = LANG.getString("sounds.%s".formatted(actionType.raw()));
-//            if (notBlank(text)) {
-//                player.playSound(player.getLocation(), Sound.valueOf(text), 1f, 1f);
-//            }
-//        }
-//
-//        {
-//            String text = LANG.getString("particles.%s".formatted(actionType.raw()));
-//            if (notBlank(text)) {
-//                Location location = block.getLocation().clone().add(0.5, 0.5, 0.5);
-//                //player.spawnParticle(Particle.valueOf(text), location, 30, 0.5, 0.5, 0.5);
-//            }
-//        }
-//    }
+    private void print(ActionType actionType) {
+        if (actionType == ActionType.SELL) {
+            if (CONFIG.getBoolean("hologram.enabled", true)) {
+                Map<String, String> map = new HashMap<>();
+                map.put("%amount%", NumberUtils.formatNumber(processedAmount));
+                map.put("%price%", NumberUtils.formatNumber(processedPrice));
+
+                HologramUtils.spawnHologram(player, block.getLocation().clone().add(0.5, 0.5, 0.5), map);
+            }
+        }
+
+        {
+            String text = LANG.getString(String.format("%s.chat", actionType.raw()));
+
+            if (notBlank(text)) {
+                String message = StringUtils.format(
+                        text,
+                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+                );
+
+                player.sendMessage(StringUtils.format(CONFIG.getString("prefix")) + " " + message);
+            }
+        }
+
+        {
+            String text = LANG.getString(String.format("%s.actionbar", actionType.raw()));
+            if (notBlank(text)) {
+                String message = StringUtils.format(
+                        text,
+                        Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+                        Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+                );
+                ActionBar actionBar = ActionBar.create(message);
+                actionBar.send(player);
+            }
+        }
+
+        {
+            Section titleSection = LANG.getSection(String.format("%s.title", actionType.raw()));
+            if (titleSection != null) {
+                String title = titleSection.getString("title");
+                String subtitle = titleSection.getString("subtitle");
+                if (notBlank(title)) {
+                    String titleComponent = StringUtils.format(
+                            title,
+                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+                    );
+                    String subtitleComponent = notBlank(subtitle) ? StringUtils.format(
+                            subtitle,
+                            Placeholder.unparsed("amount", NumberUtils.formatNumber(processedAmount)),
+                            Placeholder.unparsed("price", NumberUtils.formatNumber(processedPrice))
+                    ) : null;
+
+                    Title titleObj = Title.create(
+                            titleComponent,
+                            subtitleComponent,
+                            10, 40, 10
+                    );
+                    titleObj.send(player);
+                }
+            }
+        }
+
+        {
+            String text = LANG.getString(String.format("sounds.%s", actionType.raw()));
+            if (notBlank(text)) {
+                player.playSound(player.getLocation(), Sound.valueOf(text), 1f, 1f);
+            }
+        }
+
+        {
+            String text = LANG.getString(String.format("particles.%s", actionType.raw()));
+            if (notBlank(text)) {
+                Location location = block.getLocation().clone().add(0.5, 0.5, 0.5);
+                // will not work with 1.8.8; requires fix!
+                player.spawnParticle(Particle.valueOf(text), location, 30, 0.5, 0.5, 0.5);
+            }
+        }
+    }
 
     private boolean notBlank(String text) {
         return text != null && !text.isEmpty();

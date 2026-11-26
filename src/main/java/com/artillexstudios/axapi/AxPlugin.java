@@ -2,7 +2,6 @@ package com.artillexstudios.axapi;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-/** Java 8 compatible lifecycle bridge for the small AxAPI surface used here. */
 public abstract class AxPlugin extends JavaPlugin {
     private static AxPlugin instance;
 

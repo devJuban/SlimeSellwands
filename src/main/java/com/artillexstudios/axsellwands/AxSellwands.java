@@ -135,6 +135,7 @@ public final class AxSellwands extends AxPlugin {
         }
 
 
+
         String economy = HOOKS.getString("hooks.economy-plugin", "Vault");
         if ("builtin".equalsIgnoreCase(economy)) {
             dependencyMessage(sender, "&aEconomy: built-in prices selected; Vault is not required for price lookup.");

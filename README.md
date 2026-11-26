@@ -1,7 +1,5 @@
 # SlimeSellwands
-SlimeSellwands is a fork of [AxSellwand](https://github.com/Artillex-Studios/AxSellwands) that lets players sell items from normal inventories and Slimefun storage blocks. It supports Slimefun 5 through reflective APIs, so the base plugin does not link against a particular addon or server implementation.
-
-Named storage integrations are included for BetterInfinityExpansion, InfinityExpansion, and FluffyMachines. Other Slimefun 5 expansions can work automatically when their storage item exposes a compatible `getContents` or `getStoredItem` API; unsupported addon APIs are skipped safely and reported at startup.
+SlimeSellwands is a fork of [AxSellwand](https://github.com/Artillex-Studios/AxSellwands) that lets you sell items from Slimefun storage units.
 
 ## Requirements
 - Bukkit-compatible server; compiled against the Spigot 1.8.8 API and Java 8 bytecode
@@ -19,19 +17,13 @@ Admins can run `/axsellwands status` in-game to display the same dependency repo
 The plugin is compiled to Java 8 bytecode against the Spigot 1.8.8 API and uses Bukkit-compatible APIs and reflection for cross-version behavior. It is intended for Spigot, Paper, and Purpur from 1.8.8 onward, subject to the server's Java requirement and the installed Slimefun/addon build. Test the exact Slimefun 5 and addon versions used by your server before production deployment.
 
 > [!NOTE]
-> The plugin itself was smoke-tested on PaperSpigot 1.8.8 (Java 8) and Paper 26.2 (Java 25). Slimefun 5.3.3 was an unofficial test build; its 1.8.8 compatibility is experimental. The plugin bundles its own Java 8 compatibility layer. Separate builds are available for AxAPI's Java 8 core and a limited AxIntegrations legacy bundle; the full modern AxAPI/AxIntegrations module sets are not a single Java 8 artifact. See [`compat/DEPENDENCY-STATUS.md`](compat/DEPENDENCY-STATUS.md) for coverage and limits.
-
+> This version has only been tested on 1.20.6.
 ## Build
 
-- `mvn -DskipTests clean package` compiles against the Spigot 1.8.8 API.
-- `mvn -Ppaper-26.2 -DskipTests clean package` compiles the same Java 8 bytecode against Paper 26.2's API.
+## Future 1.8.8-1.15 Support
+In the near future 1.8.8 - 1.15.x support will be removed due it just being extremely old and unstable.
 
-The separate compatibility artifacts can be built from their directories:
-
-- `cd compat/AxAPI && ./gradlew :api:shadowJar` builds the Java 8 AxAPI core.
-- `cd compat/AxIntegrations && ./gradlew :legacy:jar` builds the shared AxIntegrations core with Vault and built-in currencies for Spigot 1.8.8
-
-# Credits
+## Credits
 [@Artillex-Studios](https://github.com/Artillex-Studios/) - providing AxSellwand
 
 [@ponk11](https://github.com/ponk11) - Adding 1.8.8+ support and few cools things

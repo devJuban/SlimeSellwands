@@ -1,5 +1,10 @@
 package com.artillexstudios.axapi.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.tag.Inserting;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.ChatColor;
 
 import java.util.Map;
@@ -10,10 +15,13 @@ public final class StringUtils {
     private static final Pattern HEX = Pattern.compile("(?i)&#([0-9a-f]{6})");
     private static final Pattern TAG = Pattern.compile("(?i)<(/?)(bold|b|italic|i|underlined|u|strikethrough|st|obfuscated|obf|reset|white|black|dark_blue|dark_green|dark_aqua|dark_red|dark_purple|gold|gray|grey|dark_gray|dark_grey|blue|green|aqua|red|light_purple|yellow|purple|#([0-9a-f]{6}))>");
 
-    private StringUtils() { }
-    public static String formatToString(String input) { return format(input, null); }
+    private StringUtils() {
+    }
+
+    public static String formatToString(String input) { return format(input, (Map<String, String>) null); }
     public static String formatToString(String input, Map<String, String> replacements) { return format(input, replacements); }
-    public static String format(String input) { return format(input, null); }
+    public static String format(String input) { return format(input, (Map<String, String>) null); }
+
     public static String format(String input, Map<String, String> replacements) {
         if (input == null) return "";
         if (replacements != null) for (Map.Entry<String, String> entry : replacements.entrySet()) {
@@ -53,29 +61,49 @@ public final class StringUtils {
 
     private static ChatColor color(String name) {
         switch (name) {
-            case "white": return ChatColor.WHITE;
-            case "black": return ChatColor.BLACK;
-            case "dark_blue": return ChatColor.DARK_BLUE;
-            case "dark_green": return ChatColor.DARK_GREEN;
-            case "dark_aqua": return ChatColor.DARK_AQUA;
-            case "dark_red": return ChatColor.DARK_RED;
-            case "dark_purple": case "purple": return ChatColor.DARK_PURPLE;
-            case "gold": return ChatColor.GOLD;
-            case "gray": case "grey": return ChatColor.GRAY;
-            case "dark_gray": case "dark_grey": return ChatColor.DARK_GRAY;
-            case "blue": return ChatColor.BLUE;
-            case "green": return ChatColor.GREEN;
-            case "aqua": return ChatColor.AQUA;
-            case "red": return ChatColor.RED;
-            case "light_purple": return ChatColor.LIGHT_PURPLE;
-            case "yellow": return ChatColor.YELLOW;
-            default: return null;
+            case "white":
+                return ChatColor.WHITE;
+            case "black":
+                return ChatColor.BLACK;
+            case "dark_blue":
+                return ChatColor.DARK_BLUE;
+            case "dark_green":
+                return ChatColor.DARK_GREEN;
+            case "dark_aqua":
+                return ChatColor.DARK_AQUA;
+            case "dark_red":
+                return ChatColor.DARK_RED;
+            case "dark_purple":
+            case "purple":
+                return ChatColor.DARK_PURPLE;
+            case "gold":
+                return ChatColor.GOLD;
+            case "gray":
+            case "grey":
+                return ChatColor.GRAY;
+            case "dark_gray":
+            case "dark_grey":
+                return ChatColor.DARK_GRAY;
+            case "blue":
+                return ChatColor.BLUE;
+            case "green":
+                return ChatColor.GREEN;
+            case "aqua":
+                return ChatColor.AQUA;
+            case "red":
+                return ChatColor.RED;
+            case "light_purple":
+                return ChatColor.LIGHT_PURPLE;
+            case "yellow":
+                return ChatColor.YELLOW;
+            default:
+                return null;
         }
     }
 
     private static String nearestLegacyColor(String hex) {
         int rgb = Integer.parseInt(hex, 16);
-        int[] palette = {0x000000,0x0000AA,0x00AA00,0x00AAAA,0xAA0000,0xAA00AA,0xFFAA00,0xAAAAAA,0x555555,0x5555FF,0x55FF55,0x55FFFF,0xFF5555,0xFF55FF,0xFFFF55,0xFFFFFF};
+        int[] palette = {0x000000, 0x0000AA, 0x00AA00, 0x00AAAA, 0xAA0000, 0xAA00AA, 0xFFAA00, 0xAAAAAA, 0x555555, 0x5555FF, 0x55FF55, 0x55FFFF, 0xFF5555, 0xFF55FF, 0xFFFF55, 0xFFFFFF};
         char[] codes = "0123456789abcdef".toCharArray();
         int best = 0, score = Integer.MAX_VALUE;
         for (int i = 0; i < palette.length; i++) {
@@ -83,8 +111,27 @@ public final class StringUtils {
             int dg = ((rgb >> 8) & 255) - ((palette[i] >> 8) & 255);
             int db = (rgb & 255) - (palette[i] & 255);
             int candidate = dr * dr + dg * dg + db * db;
-            if (candidate < score) { score = candidate; best = i; }
+            if (candidate < score) {
+                score = candidate;
+                best = i;
+            }
         }
         return "§" + codes[best];
+    }
+
+    public static String format(String text, TagResolver.Single... singles) {
+        String newText = text;
+
+        for (TagResolver.Single single : singles) {
+
+            if (!(single.tag() instanceof Inserting)) continue;
+            TextComponent value = (TextComponent) ((Inserting) single.tag()).value();
+
+            newText = newText.replace(
+                    "%" + single.key() + "%",
+                    value.content());
+        }
+
+        return format(newText);
     }
 }

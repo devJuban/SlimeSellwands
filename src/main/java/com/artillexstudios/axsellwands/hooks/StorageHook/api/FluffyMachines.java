@@ -8,8 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 
-import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getBlockMenu;
-import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.getSlimefunItem;
+import static com.artillexstudios.axsellwands.hooks.StorageHook.StorageIntegrationManager.*;
 
 public class FluffyMachines implements StorageHook {
 
@@ -30,9 +29,9 @@ public class FluffyMachines implements StorageHook {
         if (menu == null) return null;
         int amount = barrel.getStored(b);
 
-        for (int slot : OUTPUT_SLOTS){
+        for (int slot : OUTPUT_SLOTS) {
             ItemStack item = menu.getItemInSlot(slot);
-            if (isSimilar(item, stored)){
+            if (isSimilar(item, stored)) {
                 amount += item.getAmount();
             }
         }
@@ -63,12 +62,20 @@ public class FluffyMachines implements StorageHook {
     @Nullable
     private Barrel getBarrel(Block b){
         Object slimefunItem = getSlimefunItem(b);
-        if (slimefunItem == null) return null;
+        if (!isBarrel(slimefunItem)) return null;
 
         return new Barrel(getSlimefunItem(b));
     }
 
-    // reimpl the barrel class
+    private boolean isBarrel(Object slimefunItem) {
+        if (slimefunItem == null) return false;
+        String className = slimefunItem.getClass().getSimpleName();
+
+        if (className.equals("Barrel")) return true;
+        return className.equals("MiniBarrel");
+    }
+
+    // "reimpl" the barrel class
     public static class Barrel {
 
         Object barrel;
@@ -98,14 +105,14 @@ public class FluffyMachines implements StorageHook {
             try {
                 Class<?> storage = this.barrel.getClass();
 
-                for (Method name : storage.getDeclaredMethods()) {
+                for (Method name : storage.getMethods()) {
                     if (name.getName().equals(method) &&
                             name.getParameterTypes().length == args.length
                     ) {
-                        return name.invoke(storage, args);
+                        return name.invoke(barrel, args);
                     }
                 }
-            } catch (Throwable ignored) { }
+            } catch (Throwable ignored) {}
             return null;
         }
     }

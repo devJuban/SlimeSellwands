@@ -42,11 +42,11 @@ public class StorageIntegrationManager {
 
         if (IE) storageHooks.add(new InfinityExpansion());
         if (FM) storageHooks.add(new FluffyMachines());
+
         if (GR) storageHooks.add(new GenericSlimefunStorage());
     }
 
     public static boolean isStorage(Block block) {
-        if (BlockStorage.check(block) == null) return false;
 
         for (StorageHook hook : getStorageHook()) {
             if (hook.isStorage(block)) return true;
@@ -69,7 +69,7 @@ public class StorageIntegrationManager {
 
     public static void emptyStorage(Block block) {
         for (StorageHook hook : getStorageHook()) {
-            hook.emptyStorage(block);
+            if (hook.isStorage(block)) hook.emptyStorage(block);
         }
     }
 
